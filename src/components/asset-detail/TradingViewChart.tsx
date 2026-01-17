@@ -27,26 +27,50 @@ function TradingViewChart({ symbol }: { symbol: string }) {
         container.current.innerHTML = "";
 
         const script = document.createElement("script");
-        script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
+        script.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js"; // Switched to Symbol Overview
         script.type = "text/javascript";
         script.async = true;
         script.innerHTML = JSON.stringify({
-            "autosize": true,
-            "symbol": tvSymbol,
-            "interval": "D",
-            "timezone": "Etc/UTC",
-            "theme": "dark",
-            "style": "1",
+            "symbols": [
+                [
+                    symbol.toUpperCase(),
+                    tvSymbol
+                ]
+            ],
+            "chartOnly": false,
+            "width": "100%",
+            "height": "100%",
             "locale": "tr",
-            "enable_publishing": false,
-            "backgroundColor": "rgba(13, 13, 13, 1)", // Match bg-bg-surface
-            "gridColor": "rgba(42, 46, 57, 0.06)",
-            "hide_top_toolbar": false,
-            "hide_legend": false,
-            "save_image": false,
-            "calendar": false,
-            "hide_volume": true,
-            "support_host": "https://www.tradingview.com"
+            "colorTheme": "dark",
+            "autosize": true,
+            "showVolume": false,
+            "showMA": false,
+            "hideDateRanges": false,
+            "hideMarketStatus": false,
+            "hideSymbolLogo": false,
+            "scalePosition": "right",
+            "scaleMode": "Normal",
+            "fontFamily": "-apple-system, BlinkMacSystemFont, Trebuchet MS, Roboto, Ubuntu, sans-serif",
+            "fontSize": "10",
+            "noTimeScale": false,
+            "valuesTracking": "1",
+            "changeMode": "price-and-percent",
+            "chartType": "area", // Area chart is sleek
+            "maLineColor": "#2962FF",
+            "maLineWidth": 1,
+            "maLength": 9,
+            "lineWidth": 2,
+            "lineType": 0,
+            "dateRanges": [
+                "1d|1",
+                "1m|30",
+                "3m|60",
+                "12m|1D",
+                "60m|1W",
+                "all|1M"
+            ],
+            "dateFormat": "dd MMM",
+            "backgroundColor": "rgba(13, 13, 13, 1)"
         });
         container.current.appendChild(script);
     }, [symbol]);

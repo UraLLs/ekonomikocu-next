@@ -1,10 +1,12 @@
 import { createClient } from "@/utils/supabase/server";
 import TradeForm from "./TradeForm";
+import { getAssetDetail } from "@/services/marketService";
 
 export default async function ActionPanel({ symbol }: { symbol: string }) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
+    // 1. Fetch User Data
     let balance = 0;
     let ownedQuantity = 0;
 
@@ -25,9 +27,12 @@ export default async function ActionPanel({ symbol }: { symbol: string }) {
         ownedQuantity = portfolio?.quantity || 0;
     }
 
-    // Gerçek fiyat entegrasyonu sonraki adımda detaylı yapılacak
-    // Şimdilik sembolik bir fiyat belirleyelim
-    const mockPrice = 125.40;
+    // 2. Fetch Real Price
+    const detail = await getAssetDetail(symbol);
+    // Parse price string "97,450.00" -> 97450.00 or "35.50" -> 35.50
+    // Remove currency symbols and commas if used as thousands separator
+    const rawPrice = String(detail?.price || '0').replace(/[$,₺]/g, '').replace(/,/g, '');
+    const currentPrice = parseFloat(rawPrice) || 0;
 
     return (
         <div className="bg-black/40 backdrop-blur-xl border border-white/5 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
@@ -45,7 +50,7 @@ export default async function ActionPanel({ symbol }: { symbol: string }) {
             </div>
 
             <div className="relative z-10">
-                <TradeForm symbol={symbol} currentPrice={mockPrice} />
+                <TradeForm symbol={symbol} currentPrice={currentPrice} />
             </div>
 
             <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between text-xs bg-white/5 p-3 rounded-lg border border-white/5">

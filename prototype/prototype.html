@@ -1,0 +1,2015 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ekonomikocu.net - Türkiye'nin Finansal Sosyal Platformu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Dark Theme (Default) */
+            --bg-primary: #09090b;
+            --bg-secondary: #111113;
+            --bg-surface: #18181b;
+            --bg-surface-hover: #1f1f23;
+            --bg-elevated: #27272a;
+            
+            --border-subtle: #27272a;
+            --border-default: #3f3f46;
+            --border-strong: #52525b;
+            
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            
+            --accent-green: #10b981;
+            --accent-green-soft: rgba(16, 185, 129, 0.12);
+            --accent-red: #ef4444;
+            --accent-red-soft: rgba(239, 68, 68, 0.12);
+            --accent-orange: #f59e0b;
+            --accent-orange-soft: rgba(245, 158, 11, 0.12);
+            --accent-blue: #3b82f6;
+            --accent-blue-soft: rgba(59, 130, 246, 0.12);
+            --accent-purple: #8b5cf6;
+            
+            --gradient-hero: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --gradient-surface: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-secondary) 100%);
+            
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+            
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 20px;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #f1f5f9;
+            --bg-surface: #ffffff;
+            --bg-surface-hover: #f8fafc;
+            --bg-elevated: #ffffff;
+            
+            --border-subtle: #e2e8f0;
+            --border-default: #cbd5e1;
+            --border-strong: #94a3b8;
+            
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            
+            --accent-green-soft: rgba(16, 185, 129, 0.1);
+            --accent-red-soft: rgba(239, 68, 68, 0.1);
+            --accent-orange-soft: rgba(245, 158, 11, 0.1);
+            --accent-blue-soft: rgba(59, 130, 246, 0.1);
+            
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* ==================== TICKER BAR ==================== */
+        .ticker-bar {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 8px 0;
+            overflow: hidden;
+        }
+
+        .ticker-content {
+            display: flex;
+            gap: 32px;
+            animation: ticker-scroll 30s linear infinite;
+            width: max-content;
+        }
+
+        .ticker-content:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes ticker-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px;
+            background: var(--bg-surface);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-subtle);
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .ticker-item:hover {
+            border-color: var(--accent-green);
+            transform: translateY(-1px);
+        }
+
+        .ticker-symbol {
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--text-primary);
+        }
+
+        .ticker-price {
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        .ticker-change {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .ticker-change.up {
+            color: var(--accent-green);
+            background: var(--accent-green-soft);
+        }
+
+        .ticker-change.down {
+            color: var(--accent-red);
+            background: var(--accent-red-soft);
+        }
+
+        /* ==================== HEADER ==================== */
+        .header {
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--gradient-hero);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+            color: white;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 20px;
+            color: var(--text-primary);
+        }
+
+        .logo-text span {
+            color: var(--accent-green);
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-item {
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-item:hover {
+            color: var(--text-primary);
+            background: var(--bg-surface-hover);
+        }
+
+        .nav-item.active {
+            color: var(--accent-green);
+            background: var(--accent-green-soft);
+        }
+
+        .nav-item .badge {
+            background: var(--accent-red);
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .search-box:hover {
+            border-color: var(--border-default);
+        }
+
+        .search-box svg {
+            width: 16px;
+            height: 16px;
+            color: var(--text-muted);
+        }
+
+        .search-box span {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .search-box kbd {
+            font-size: 11px;
+            padding: 2px 6px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 4px;
+            color: var(--text-muted);
+            font-family: inherit;
+        }
+
+        .theme-toggle {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-surface-hover);
+            color: var(--text-primary);
+        }
+
+        .btn-primary {
+            padding: 8px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            background: var(--gradient-hero);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-elevated);
+            border: 2px solid var(--border-default);
+            cursor: pointer;
+        }
+
+        /* ==================== MAIN LAYOUT ==================== */
+        .main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 24px;
+        }
+
+        /* ==================== NEWS SECTION ==================== */
+        .news-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title svg {
+            color: var(--accent-green);
+        }
+
+        .section-link {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--accent-green);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .section-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Hero News */
+        .hero-news {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 16px;
+        }
+
+        .news-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .news-card:hover {
+            border-color: var(--border-default);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .news-card.hero {
+            grid-row: span 2;
+        }
+
+        .news-card-image {
+            width: 100%;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            background: var(--bg-elevated);
+        }
+
+        .news-card.hero .news-card-image {
+            aspect-ratio: 16/10;
+        }
+
+        .news-card-content {
+            padding: 16px;
+        }
+
+        .news-card.hero .news-card-content {
+            padding: 20px;
+        }
+
+        .news-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .news-category.borsa {
+            color: var(--accent-green);
+            background: var(--accent-green-soft);
+        }
+
+        .news-category.kripto {
+            color: var(--accent-orange);
+            background: var(--accent-orange-soft);
+        }
+
+        .news-category.ekonomi {
+            color: var(--accent-blue);
+            background: var(--accent-blue-soft);
+        }
+
+        .news-category.breaking {
+            color: var(--accent-red);
+            background: var(--accent-red-soft);
+        }
+
+        .news-card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.4;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .news-card.hero .news-card-title {
+            font-size: 22px;
+            -webkit-line-clamp: 3;
+        }
+
+        .news-card-excerpt {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .news-card-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .news-card-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* News Grid */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .news-card-small {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            gap: 12px;
+        }
+
+        .news-card-small:hover {
+            border-color: var(--border-default);
+            background: var(--bg-surface-hover);
+        }
+
+        .news-card-small-image {
+            width: 80px;
+            height: 60px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            background: var(--bg-elevated);
+            flex-shrink: 0;
+        }
+
+        .news-card-small-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .news-card-small-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+
+        .news-card-small-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* ==================== FINANCE TOOLS INLINE ==================== */
+        .finance-tools-section {
+            margin-top: 8px;
+        }
+
+        .tools-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .tool-mini {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .tool-mini:hover {
+            border-color: var(--border-default);
+            background: var(--bg-surface-hover);
+        }
+
+        .tool-mini-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tool-mini-icon {
+            font-size: 16px;
+        }
+
+        .tool-mini-header h4 {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Converter Mini */
+        .converter-mini {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .converter-mini-input {
+            display: flex;
+            gap: 6px;
+        }
+
+        .converter-mini-input input {
+            width: 70px;
+            padding: 6px 8px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .converter-mini-input input:focus {
+            outline: none;
+            border-color: var(--accent-green);
+        }
+
+        .converter-mini-input select {
+            padding: 6px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .converter-mini-result {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px;
+            background: var(--accent-green-soft);
+            border-radius: var(--radius-sm);
+        }
+
+        .converter-mini-result .value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent-green);
+        }
+
+        .converter-mini-result .currency {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Market Mini */
+        .market-mini-row {
+            display: flex;
+            gap: 6px;
+        }
+
+        .market-mini-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px 4px;
+            border-radius: var(--radius-sm);
+        }
+
+        .market-mini-item.up { background: var(--accent-green-soft); }
+        .market-mini-item.down { background: var(--accent-red-soft); }
+        .market-mini-item.vol { background: var(--bg-secondary); }
+
+        .market-mini-item .num {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .market-mini-item.up .num { color: var(--accent-green); }
+        .market-mini-item.down .num { color: var(--accent-red); }
+        .market-mini-item.vol .num { color: var(--text-primary); }
+
+        .market-mini-item .lbl {
+            font-size: 9px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* Calendar Mini */
+        .cal-mini-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .cal-mini-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+        }
+
+        .cal-mini-item .time {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--accent-blue);
+            min-width: 34px;
+        }
+
+        .cal-mini-item .event {
+            flex: 1;
+            font-size: 11px;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .cal-mini-item .impact {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-red);
+        }
+
+        /* Calc Mini */
+        .calc-mini-body {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .calc-mini-body .info {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .calc-mini-body .result {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background: var(--accent-green-soft);
+            border-radius: var(--radius-sm);
+        }
+
+        .calc-mini-body .result .lbl {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .calc-mini-body .result .val {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent-green);
+        }
+
+        /* Quick Links Mini */
+        .quick-links-mini {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .ql-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 11px;
+            transition: all 0.2s ease;
+        }
+
+        .ql-item:hover {
+            background: var(--accent-green-soft);
+            color: var(--accent-green);
+        }
+
+        .ql-item .icon {
+            font-size: 12px;
+        }
+
+        /* ==================== SIDEBAR ==================== */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .widget {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .widget-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .widget-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .widget-content {
+            padding: 12px;
+        }
+
+        /* Trend Posts Widget */
+        .trend-post {
+            padding: 12px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .trend-post:hover {
+            background: var(--bg-surface-hover);
+        }
+
+        .trend-post-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .trend-post-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--bg-elevated);
+        }
+
+        .trend-post-user {
+            flex: 1;
+        }
+
+        .trend-post-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .trend-post-handle {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .trend-post-content {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .trend-post-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .trend-post-stats span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Live Widget */
+        .live-stream {
+            padding: 12px;
+        }
+
+        .live-stream-preview {
+            position: relative;
+            aspect-ratio: 16/9;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .live-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: var(--accent-red);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .live-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .live-viewers {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            padding: 4px 8px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            font-size: 11px;
+            font-weight: 500;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .live-stream-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .live-stream-info p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Education Widget */
+        .education-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .education-item:hover {
+            background: var(--bg-surface-hover);
+        }
+
+        .education-thumb {
+            width: 64px;
+            height: 48px;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-sm);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-green);
+        }
+
+        .education-info h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .education-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Chat Rooms Widget */
+        .chat-room {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chat-room:hover {
+            background: var(--bg-surface-hover);
+        }
+
+        .chat-room-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .chat-room-icon.borsa { background: var(--accent-green-soft); }
+        .chat-room-icon.kripto { background: var(--accent-orange-soft); }
+        .chat-room-icon.altin { background: var(--accent-blue-soft); }
+
+        .chat-room-info {
+            flex: 1;
+        }
+
+        .chat-room-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .chat-room-members {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .chat-room-status {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+        }
+
+        /* Forum Widget */
+        .forum-topic {
+            padding: 12px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .forum-topic:hover {
+            background: var(--bg-surface-hover);
+        }
+
+        .forum-topic-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .forum-topic-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .forum-topic-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ==================== FOOTER ==================== */
+        .footer {
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border-subtle);
+            margin-top: 40px;
+        }
+
+        .footer-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .footer-main {
+            display: grid;
+            grid-template-columns: 1.5fr 2fr 1fr;
+            gap: 48px;
+            padding: 48px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .footer-brand .logo {
+            margin-bottom: 16px;
+        }
+
+        .footer-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 8px;
+        }
+
+        .social-link {
+            width: 36px;
+            height: 36px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+        }
+
+        .social-link:hover {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .footer-links {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .footer-column h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-column a {
+            display: block;
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 6px 0;
+            transition: color 0.2s ease;
+        }
+
+        .footer-column a:hover {
+            color: var(--accent-green);
+        }
+
+        .footer-apps h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .app-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .app-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .app-btn:hover {
+            border-color: var(--accent-green);
+            background: var(--bg-surface-hover);
+        }
+
+        .app-btn svg {
+            color: var(--text-secondary);
+        }
+
+        .app-btn span {
+            display: block;
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .app-btn strong {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            gap: 24px;
+        }
+
+        .footer-legal {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .footer-legal p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .legal-links {
+            display: flex;
+            gap: 16px;
+        }
+
+        .legal-links a {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .legal-links a:hover {
+            color: var(--accent-green);
+        }
+
+        .footer-disclaimer {
+            font-size: 11px;
+            color: var(--text-muted);
+            background: var(--accent-orange-soft);
+            padding: 8px 12px;
+            border-radius: var(--radius-md);
+        }
+
+        .footer-disclaimer p {
+            margin: 0;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 1200px) {
+            .main {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .tools-row {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .footer-main {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .footer-apps {
+                grid-column: span 2;
+                margin-top: 24px;
+            }
+
+            .app-buttons {
+                flex-direction: row;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-inner {
+                padding: 0 16px;
+            }
+            
+            .nav {
+                display: none;
+            }
+            
+            .search-box span, .search-box kbd {
+                display: none;
+            }
+            
+            .main {
+                padding: 16px;
+            }
+            
+            .hero-news {
+                grid-template-columns: 1fr;
+            }
+            
+            .news-card.hero {
+                grid-row: span 1;
+            }
+            
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                grid-template-columns: 1fr;
+            }
+
+            .tools-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-main {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+
+            .footer-links {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-apps {
+                grid-column: span 1;
+            }
+
+            .app-buttons {
+                flex-direction: column;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-legal {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .legal-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Ticker Bar -->
+    <div class="ticker-bar">
+        <div class="ticker-content">
+            <div class="ticker-item">
+                <span class="ticker-symbol">BIST 100</span>
+                <span class="ticker-price">10.234,56</span>
+                <span class="ticker-change up">▲ 1.24%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">USD/TRY</span>
+                <span class="ticker-price">32,4521</span>
+                <span class="ticker-change up">▲ 0.32%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">EUR/TRY</span>
+                <span class="ticker-price">35,1234</span>
+                <span class="ticker-change down">▼ 0.18%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">Gram Altın</span>
+                <span class="ticker-price">2.145,00</span>
+                <span class="ticker-change up">▲ 0.56%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">BTC/USD</span>
+                <span class="ticker-price">97.432</span>
+                <span class="ticker-change up">▲ 2.14%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">ETH/USD</span>
+                <span class="ticker-price">3.421</span>
+                <span class="ticker-change down">▼ 0.87%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">Gümüş</span>
+                <span class="ticker-price">28,45</span>
+                <span class="ticker-change up">▲ 0.92%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">Brent Petrol</span>
+                <span class="ticker-price">78,23</span>
+                <span class="ticker-change down">▼ 1.23%</span>
+            </div>
+            <!-- Duplicate for seamless scroll -->
+            <div class="ticker-item">
+                <span class="ticker-symbol">BIST 100</span>
+                <span class="ticker-price">10.234,56</span>
+                <span class="ticker-change up">▲ 1.24%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">USD/TRY</span>
+                <span class="ticker-price">32,4521</span>
+                <span class="ticker-change up">▲ 0.32%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">EUR/TRY</span>
+                <span class="ticker-price">35,1234</span>
+                <span class="ticker-change down">▼ 0.18%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">Gram Altın</span>
+                <span class="ticker-price">2.145,00</span>
+                <span class="ticker-change up">▲ 0.56%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="#" class="logo">
+                <div class="logo-icon">E</div>
+                <div class="logo-text">ekonomi<span>kocu</span></div>
+            </a>
+
+            <nav class="nav">
+                <a href="#" class="nav-item active">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    Ana Sayfa
+                </a>
+                <a href="#" class="nav-item">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>
+                    Piyasalar
+                </a>
+                <a href="#" class="nav-item">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Sosyal
+                    <span class="badge">12</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    Eğitim
+                </a>
+                <a href="#" class="nav-item">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                    Canlı
+                    <span class="badge" style="background: var(--accent-red);">3</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Forum
+                </a>
+            </nav>
+
+            <div class="header-actions">
+                <div class="search-box">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <span>Ara...</span>
+                    <kbd>⌘K</kbd>
+                </div>
+                
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="sun-icon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                </button>
+
+                <button class="btn-primary">Giriş Yap</button>
+                
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Avatar" class="avatar">
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- News Section -->
+        <section class="news-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1m2 13a2 2 0 0 1-2-2V7m2 13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+                    Son Haberler
+                </h2>
+                <a href="#" class="section-link">
+                    Tümünü Gör
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                </a>
+            </div>
+
+            <!-- Hero News -->
+            <div class="hero-news">
+                <article class="news-card hero">
+                    <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&h=500&fit=crop" alt="Borsa" class="news-card-image">
+                    <div class="news-card-content">
+                        <span class="news-category breaking">🔴 Son Dakika</span>
+                        <h3 class="news-card-title">Merkez Bankası faiz kararını açıkladı: Piyasalar hareketlendi</h3>
+                        <p class="news-card-excerpt">TCMB Para Politikası Kurulu, politika faizini 500 baz puan artırarak %50'ye yükseltti. Karar sonrası dolar ve euro sert düştü.</p>
+                        <div class="news-card-meta">
+                            <span>
+                                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                                5 dk önce
+                            </span>
+                            <span>
+                                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                2.4K görüntülenme
+                            </span>
+                            <span>
+                                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                                142 yorum
+                            </span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="news-card">
+                    <img src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=400&h=225&fit=crop" alt="Bitcoin" class="news-card-image">
+                    <div class="news-card-content">
+                        <span class="news-category kripto">Kripto</span>
+                        <h3 class="news-card-title">Bitcoin 100.000 dolar sınırını test ediyor</h3>
+                        <div class="news-card-meta">
+                            <span>32 dk önce</span>
+                            <span>847 görüntülenme</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="news-card">
+                    <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=400&h=225&fit=crop" alt="Dolar" class="news-card-image">
+                    <div class="news-card-content">
+                        <span class="news-category ekonomi">Ekonomi</span>
+                        <h3 class="news-card-title">Enflasyon verileri beklentilerin altında geldi</h3>
+                        <div class="news-card-meta">
+                            <span>1 saat önce</span>
+                            <span>1.2K görüntülenme</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <!-- More News -->
+            <div class="section-header" style="margin-top: 8px;">
+                <h2 class="section-title">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>
+                    Piyasa Haberleri
+                </h2>
+            </div>
+
+            <div class="news-grid">
+                <article class="news-card-small">
+                    <img src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=160&h=120&fit=crop" alt="" class="news-card-small-image">
+                    <div class="news-card-small-content">
+                        <h4 class="news-card-small-title">BIST 100'de yükseliş devam ediyor: Bankacılık hisseleri lider</h4>
+                        <div class="news-card-small-meta">2 saat önce • Borsa</div>
+                    </div>
+                </article>
+                <article class="news-card-small">
+                    <img src="https://images.unsplash.com/photo-1610375461246-83df859d849d?w=160&h=120&fit=crop" alt="" class="news-card-small-image">
+                    <div class="news-card-small-content">
+                        <h4 class="news-card-small-title">Altın fiyatları tüm zamanların en yüksek seviyesinde</h4>
+                        <div class="news-card-small-meta">3 saat önce • Emtia</div>
+                    </div>
+                </article>
+                <article class="news-card-small">
+                    <img src="https://images.unsplash.com/photo-1624996379697-f01d168b1a52?w=160&h=120&fit=crop" alt="" class="news-card-small-image">
+                    <div class="news-card-small-content">
+                        <h4 class="news-card-small-title">Ethereum'da kritik güncelleme: Fiyat beklentileri</h4>
+                        <div class="news-card-small-meta">4 saat önce • Kripto</div>
+                    </div>
+                </article>
+                <article class="news-card-small">
+                    <img src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=160&h=120&fit=crop" alt="" class="news-card-small-image">
+                    <div class="news-card-small-content">
+                        <h4 class="news-card-small-title">FED toplantısı öncesi piyasalarda temkinli bekleyiş</h4>
+                        <div class="news-card-small-meta">5 saat önce • Dünya</div>
+                    </div>
+                </article>
+                <article class="news-card-small">
+                    <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=160&h=120&fit=crop" alt="" class="news-card-small-image">
+                    <div class="news-card-small-content">
+                        <h4 class="news-card-small-title">Konut kredisi faizlerinde yeni düzenleme yolda</h4>
+                        <div class="news-card-small-meta">6 saat önce • Ekonomi</div>
+                    </div>
+                </article>
+                <article class="news-card-small">
+                    <img src="https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=160&h=120&fit=crop" alt="" class="news-card-small-image">
+                    <div class="news-card-small-content">
+                        <h4 class="news-card-small-title">Solana'da %15 rally: Kurumsal ilgi artıyor</h4>
+                        <div class="news-card-small-meta">7 saat önce • Kripto</div>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Finance Tools Section -->
+            <div class="finance-tools-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                        Finansal Araçlar
+                    </h2>
+                    <a href="#" class="section-link">
+                        Tüm Araçlar
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                    </a>
+                </div>
+
+                <div class="tools-row">
+                    <!-- Döviz Çevirici -->
+                    <div class="tool-mini">
+                        <div class="tool-mini-header">
+                            <span class="tool-mini-icon">💱</span>
+                            <h4>Döviz Çevirici</h4>
+                        </div>
+                        <div class="converter-mini">
+                            <div class="converter-mini-input">
+                                <input type="number" value="1000">
+                                <select>
+                                    <option>TRY</option>
+                                    <option>USD</option>
+                                    <option>EUR</option>
+                                </select>
+                            </div>
+                            <div class="converter-mini-result">
+                                <span class="value">30.82</span>
+                                <span class="currency">USD</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Piyasa Özeti -->
+                    <div class="tool-mini">
+                        <div class="tool-mini-header">
+                            <span class="tool-mini-icon">📊</span>
+                            <h4>Piyasa Özeti</h4>
+                        </div>
+                        <div class="market-mini-row">
+                            <div class="market-mini-item up">
+                                <span class="num">284</span>
+                                <span class="lbl">Yükselen</span>
+                            </div>
+                            <div class="market-mini-item down">
+                                <span class="num">156</span>
+                                <span class="lbl">Düşen</span>
+                            </div>
+                            <div class="market-mini-item vol">
+                                <span class="num">₺84B</span>
+                                <span class="lbl">Hacim</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ekonomik Takvim -->
+                    <div class="tool-mini">
+                        <div class="tool-mini-header">
+                            <span class="tool-mini-icon">📅</span>
+                            <h4>Ekonomik Takvim</h4>
+                        </div>
+                        <div class="cal-mini-list">
+                            <div class="cal-mini-item">
+                                <span class="time">14:30</span>
+                                <span class="event">ABD İstihdam</span>
+                                <span class="impact"></span>
+                            </div>
+                            <div class="cal-mini-item">
+                                <span class="time">16:00</span>
+                                <span class="event">TCMB Faiz</span>
+                                <span class="impact"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Getiri Hesapla -->
+                    <div class="tool-mini">
+                        <div class="tool-mini-header">
+                            <span class="tool-mini-icon">🧮</span>
+                            <h4>Getiri Hesapla</h4>
+                        </div>
+                        <div class="calc-mini-body">
+                            <div class="info">₺10.000 → 12 ay</div>
+                            <div class="result">
+                                <span class="lbl">Tahmini:</span>
+                                <span class="val">₺14.200</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hızlı Linkler -->
+                    <div class="tool-mini">
+                        <div class="quick-links-mini">
+                            <a href="#" class="ql-item">
+                                <span class="icon">📈</span>
+                                Canlı Borsa
+                            </a>
+                            <a href="#" class="ql-item">
+                                <span class="icon">💰</span>
+                                Altın
+                            </a>
+                            <a href="#" class="ql-item">
+                                <span class="icon">₿</span>
+                                Kripto
+                            </a>
+                            <a href="#" class="ql-item">
+                                <span class="icon">🏦</span>
+                                Faizler
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <!-- Trend Posts -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
+                        Trend Paylaşımlar
+                    </h3>
+                    <a href="#" class="section-link">Tümü</a>
+                </div>
+                <div class="widget-content">
+                    <div class="trend-post">
+                        <div class="trend-post-header">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=trader42" alt="" class="trend-post-avatar">
+                            <div class="trend-post-user">
+                                <div class="trend-post-name">Ahmet Yılmaz</div>
+                                <div class="trend-post-handle">@trader42 • 2s önce</div>
+                            </div>
+                        </div>
+                        <p class="trend-post-content">BIST 100'de 10.500 direnci kritik. Kırılırsa 11.000'i hızlı görebiliriz. Bankacılık endeksi lokomotif olmaya devam ediyor 📈</p>
+                        <div class="trend-post-stats">
+                            <span>❤️ 234</span>
+                            <span>💬 42</span>
+                            <span>🔄 18</span>
+                        </div>
+                    </div>
+                    <div class="trend-post">
+                        <div class="trend-post-header">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=crypto" alt="" class="trend-post-avatar">
+                            <div class="trend-post-user">
+                                <div class="trend-post-name">Kripto Analiz</div>
+                                <div class="trend-post-handle">@kriptoanalist • 15d önce</div>
+                            </div>
+                        </div>
+                        <p class="trend-post-content">Bitcoin haftalık kapanış kritik. 95K üzeri kapanırsa ATH yolculuğu hızlanır. Altcoin sezonu için BTC dominance %50 altını bekleyelim.</p>
+                        <div class="trend-post-stats">
+                            <span>❤️ 189</span>
+                            <span>💬 31</span>
+                            <span>🔄 27</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Stream -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                        Canlı Yayın
+                    </h3>
+                </div>
+                <div class="live-stream">
+                    <div class="live-stream-preview">
+                        <div class="live-badge">Canlı</div>
+                        <div class="live-viewers">👁 1.2K izliyor</div>
+                    </div>
+                    <div class="live-stream-info">
+                        <h4>Günlük Piyasa Özeti</h4>
+                        <p>@ekonomist_mehmet ile canlı analiz</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Education -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        Öne Çıkan Eğitimler
+                    </h3>
+                    <a href="#" class="section-link">Tümü</a>
+                </div>
+                <div class="widget-content">
+                    <div class="education-item">
+                        <div class="education-thumb">▶</div>
+                        <div class="education-info">
+                            <h4>RSI İndikatörü Nedir?</h4>
+                            <div class="education-meta">
+                                <span>12 dk</span>
+                                <span>•</span>
+                                <span>Başlangıç</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="education-item">
+                        <div class="education-thumb">▶</div>
+                        <div class="education-info">
+                            <h4>Fibonacci Düzeltme Seviyeleri</h4>
+                            <div class="education-meta">
+                                <span>18 dk</span>
+                                <span>•</span>
+                                <span>Orta</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="education-item">
+                        <div class="education-thumb">▶</div>
+                        <div class="education-info">
+                            <h4>Temel Analiz vs Teknik Analiz</h4>
+                            <div class="education-meta">
+                                <span>24 dk</span>
+                                <span>•</span>
+                                <span>Başlangıç</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Rooms -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        Aktif Sohbet Odaları
+                    </h3>
+                </div>
+                <div class="widget-content">
+                    <div class="chat-room">
+                        <div class="chat-room-icon borsa">📈</div>
+                        <div class="chat-room-info">
+                            <div class="chat-room-name">#borsa-genel</div>
+                            <div class="chat-room-members">234 çevrimiçi</div>
+                        </div>
+                        <div class="chat-room-status"></div>
+                    </div>
+                    <div class="chat-room">
+                        <div class="chat-room-icon kripto">₿</div>
+                        <div class="chat-room-info">
+                            <div class="chat-room-name">#kripto-analiz</div>
+                            <div class="chat-room-members">189 çevrimiçi</div>
+                        </div>
+                        <div class="chat-room-status"></div>
+                    </div>
+                    <div class="chat-room">
+                        <div class="chat-room-icon altin">🥇</div>
+                        <div class="chat-room-info">
+                            <div class="chat-room-name">#altın-gümüş</div>
+                            <div class="chat-room-members">76 çevrimiçi</div>
+                        </div>
+                        <div class="chat-room-status"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Forum -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        Sıcak Tartışmalar
+                    </h3>
+                    <a href="#" class="section-link">Tümü</a>
+                </div>
+                <div class="widget-content">
+                    <div class="forum-topic">
+                        <h4 class="forum-topic-title">2026 için en iyi yatırım aracı hangisi?</h4>
+                        <div class="forum-topic-meta">
+                            <span>💬 142 yorum</span>
+                            <span>👁 2.3K görüntülenme</span>
+                        </div>
+                    </div>
+                    <div class="forum-topic">
+                        <h4 class="forum-topic-title">Teknik analiz gerçekten işe yarıyor mu?</h4>
+                        <div class="forum-topic-meta">
+                            <span>💬 89 yorum</span>
+                            <span>👁 1.8K görüntülenme</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-main">
+                <div class="footer-brand">
+                    <a href="#" class="logo">
+                        <div class="logo-icon">E</div>
+                        <div class="logo-text">ekonomi<span>kocu</span></div>
+                    </a>
+                    <p class="footer-desc">Türkiye'nin en kapsamlı finansal sosyal platformu. Piyasaları takip edin, analizler paylaşın, eğitimlerle gelişin.</p>
+                    <div class="footer-social">
+                        <a href="#" class="social-link" title="Twitter/X">
+                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                        </a>
+                        <a href="#" class="social-link" title="Instagram">
+                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                        </a>
+                        <a href="#" class="social-link" title="YouTube">
+                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                        </a>
+                        <a href="#" class="social-link" title="Telegram">
+                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                        </a>
+                        <a href="#" class="social-link" title="Discord">
+                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Platform</h4>
+                        <a href="#">Ana Sayfa</a>
+                        <a href="#">Piyasalar</a>
+                        <a href="#">Sosyal</a>
+                        <a href="#">Eğitimler</a>
+                        <a href="#">Canlı Yayınlar</a>
+                        <a href="#">Forum</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Araçlar</h4>
+                        <a href="#">Döviz Çevirici</a>
+                        <a href="#">Yatırım Hesaplayıcı</a>
+                        <a href="#">Portföy Takibi</a>
+                        <a href="#">Ekonomik Takvim</a>
+                        <a href="#">Teknik Analiz</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Şirket</h4>
+                        <a href="#">Hakkımızda</a>
+                        <a href="#">Kariyer</a>
+                        <a href="#">Blog</a>
+                        <a href="#">Basın</a>
+                        <a href="#">İletişim</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Destek</h4>
+                        <a href="#">Yardım Merkezi</a>
+                        <a href="#">SSS</a>
+                        <a href="#">Güvenlik</a>
+                        <a href="#">Topluluk Kuralları</a>
+                        <a href="#">Geri Bildirim</a>
+                    </div>
+                </div>
+
+                <div class="footer-apps">
+                    <h4>Mobil Uygulama</h4>
+                    <div class="app-buttons">
+                        <a href="#" class="app-btn">
+                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                            <div>
+                                <span>App Store'dan</span>
+                                <strong>İndirin</strong>
+                            </div>
+                        </a>
+                        <a href="#" class="app-btn">
+                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 01-.61-.92V2.734a1 1 0 01.609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.198l2.807 1.626a1 1 0 010 1.73l-2.808 1.626L15.206 12l2.492-2.491zM5.864 2.658L16.802 8.99l-2.303 2.303-8.635-8.635z"/></svg>
+                            <div>
+                                <span>Google Play'den</span>
+                                <strong>İndirin</strong>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div class="footer-legal">
+                    <p>© 2026 Ekonomikocu. Tüm hakları saklıdır.</p>
+                    <div class="legal-links">
+                        <a href="#">Gizlilik Politikası</a>
+                        <a href="#">Kullanım Koşulları</a>
+                        <a href="#">Çerez Politikası</a>
+                        <a href="#">KVKK</a>
+                    </div>
+                </div>
+                <div class="footer-disclaimer">
+                    <p>⚠️ Yatırım tavsiyesi değildir. Finansal kararlarınızı vermeden önce profesyonel danışmanlık alınız.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+</body>
+</html>

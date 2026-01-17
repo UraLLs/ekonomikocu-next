@@ -8,7 +8,22 @@ function TradingViewChart({ symbol }: { symbol: string }) {
     useEffect(() => {
         if (!container.current) return;
 
-        // Clear previous content to avoid duplicates
+        // Determine exchange based on symbol
+        // If symbol is like BTC, ETH, SOL or ends with USDT -> BINANCE
+        // Otherwise assume BIST
+        let tvSymbol = `BIST:${symbol.toUpperCase()}`;
+        const upperSymbol = symbol.toUpperCase();
+
+        const cryptoCommon = ['BTC', 'ETH', 'SOL', 'AVAX', 'XRP', 'DOGE', 'USDT'];
+        if (cryptoCommon.includes(upperSymbol) || upperSymbol.endsWith('USDT')) {
+            tvSymbol = `BINANCE:${upperSymbol}USDT`;
+            // If it's already full pair like BTCUSDT, keep it, otherwise append USDT
+            if (upperSymbol.endsWith('USDT')) {
+                tvSymbol = `BINANCE:${upperSymbol}`;
+            }
+        }
+
+        // Clear previous content
         container.current.innerHTML = "";
 
         const script = document.createElement("script");
@@ -17,14 +32,14 @@ function TradingViewChart({ symbol }: { symbol: string }) {
         script.async = true;
         script.innerHTML = JSON.stringify({
             "autosize": true,
-            "symbol": `BIST:${symbol.toUpperCase()}`,
+            "symbol": tvSymbol,
             "interval": "D",
             "timezone": "Etc/UTC",
             "theme": "dark",
             "style": "1",
             "locale": "tr",
             "enable_publishing": false,
-            "backgroundColor": "rgba(0, 0, 0, 1)",
+            "backgroundColor": "rgba(13, 13, 13, 1)", // Match bg-bg-surface
             "gridColor": "rgba(42, 46, 57, 0.06)",
             "hide_top_toolbar": false,
             "hide_legend": false,

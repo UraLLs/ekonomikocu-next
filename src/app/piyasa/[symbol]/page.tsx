@@ -3,9 +3,10 @@ import Footer from "@/components/layout/Footer";
 import AssetHeader from "@/components/asset-detail/AssetHeader";
 import TradingViewChart from "@/components/asset-detail/TradingViewChart";
 import WarRoom from "@/components/asset-detail/WarRoom";
-import SentimentGauge from "@/components/asset-detail/SentimentGauge";
 import ActionPanel from "@/components/asset-detail/ActionPanel";
+import NewsWidget from "@/components/asset-detail/NewsWidget";
 import { Metadata } from "next";
+import { createClient } from "@/utils/supabase/server";
 
 export async function generateMetadata({ params }: { params: Promise<{ symbol: string }> }): Promise<Metadata> {
     const { symbol } = await params;
@@ -24,25 +25,28 @@ export async function generateMetadata({ params }: { params: Promise<{ symbol: s
     };
 }
 
-import { createClient } from "@/utils/supabase/server";
-import CommentSection from "@/components/asset-detail/CommentSection";
+import { getEconomyNews } from "@/services/newsService";
 
 export default async function AssetPage({ params }: { params: Promise<{ symbol: string }> }) {
     const { symbol } = await params;
     const supabase = await createClient();
 
-    // 1. Get Current User
-    const { data: { user } } = await supabase.auth.getUser();
+    // 1. Get Current User (Used implicitly by client components via auth but good to check session if needed)
+    // const { data: { user } } = await supabase.auth.getUser();
 
-    // 2. Get Comments
-    const { data: comments } = await supabase
-        .from('comments')
-        .select('*')
-        .eq('symbol', symbol)
-        .order('created_at', { ascending: false });
+    // 2. Fetch Data in Parallel
+    const [news, { data: comments }] = await Promise.all([
+        getEconomyNews(),
+        supabase
+            .from('comments')
+            .select('*')
+            .eq('symbol', symbol)
+            .order('created_at', { ascending: false })
+            .limit(20) // Limit initial load
+    ]);
 
     // 3. Get Profiles for those comments
-    let commentsWithProfiles = [];
+    let commentsWithProfiles: any[] = [];
     if (comments && comments.length > 0) {
         const userIds = Array.from(new Set(comments.map(c => c.user_id)));
         const { data: profiles } = await supabase
@@ -59,37 +63,36 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
             ...c,
             profiles: profileMap[c.user_id]
         }));
+    } else {
+        // Fallback for demo if no real comments exist yet (User asked for real data, but if table is empty visually it looks broken, so keeping empty array is fine)
+        commentsWithProfiles = [];
     }
 
     return (
         <main className="min-h-screen bg-bg-primary text-text-primary">
             <Header />
 
-            <div className="max-w-[1600px] mx-auto p-4 md:p-6 lg:p-8">
+            <div className="max-w-[1600px] mx-auto p-4 md:p-6 lg:p-8 pb-32">
                 {/* Asset Header */}
                 <AssetHeader symbol={symbol} />
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                     {/* LEFT COLUMN (Chart & Analysis) - 70% */}
                     <div className="lg:col-span-8 space-y-6">
                         <TradingViewChart symbol={symbol} />
 
-                        {/* Analysis Tabs Stub (Moved logic here or kept separate) */}
-                        {/* We insert CommentSection here */}
-                        <CommentSection
-                            symbol={symbol}
-                            currentUser={user}
-                            comments={commentsWithProfiles}
-                        />
+                        {/* War Room takes center stage as the main social/analysis hub */}
+                        <WarRoom symbol={symbol} initialComments={commentsWithProfiles} />
                     </div>
 
                     {/* RIGHT COLUMN (Interaction) - 30% */}
                     <div className="lg:col-span-4 space-y-6">
                         <ActionPanel symbol={symbol} />
-                        <SentimentGauge />
-                        <WarRoom symbol={symbol} />
+                        <NewsWidget news={news} />
                     </div>
                 </div>
+
+                <div className="h-24 w-full"></div>
             </div>
 
             <Footer />

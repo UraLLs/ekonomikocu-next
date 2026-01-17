@@ -1,5 +1,6 @@
 import Header from "@/components/layout/Header";
 import Ticker from "@/components/layout/Ticker";
+import HeroSection from "@/components/features/HeroSection";
 import Stories from "@/components/features/Stories";
 import NewsSection from "@/components/features/NewsSection";
 import FinanceTools from "@/components/features/FinanceTools";
@@ -51,6 +52,9 @@ export default async function Home() {
 
           {/* MAIN CONTENT AREA */}
           <div className="flex-1 flex flex-col gap-6 min-w-0">
+            {/* Premium Hero Section */}
+            <HeroSection />
+
             {/* Restored Stories */}
             <Stories />
 

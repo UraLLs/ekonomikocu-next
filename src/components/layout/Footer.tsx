@@ -1,7 +1,9 @@
 
 export default function Footer() {
     return (
-        <footer className="bg-bg-surface border-t border-border-subtle mt-10">
+        <footer className="bg-black/80 backdrop-blur-xl border-t border-white/5 mt-auto relative overflow-hidden">
+            {/* Ambient Footer Glow */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-32 bg-accent-blue/5 blur-[80px] pointer-events-none"></div>
             <div className="max-w-[1400px] mx-auto px-6">
 
                 {/* MAIN FOOTER */}

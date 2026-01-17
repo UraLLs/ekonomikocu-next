@@ -103,3 +103,22 @@ body {
   background-size: 100% 100%, 100% 100%, 50px 50px, 50px 50px;
   background-attachment: fixed;
 }
+
+/* Custom Scrollbar for Dark Theme consistency */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
+}

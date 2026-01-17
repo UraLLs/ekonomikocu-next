@@ -24,8 +24,42 @@ export async function generateMetadata({ params }: { params: Promise<{ symbol: s
     };
 }
 
+import { createClient } from "@/utils/supabase/server";
+import CommentSection from "@/components/asset-detail/CommentSection";
+
 export default async function AssetPage({ params }: { params: Promise<{ symbol: string }> }) {
     const { symbol } = await params;
+    const supabase = await createClient();
+
+    // 1. Get Current User
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // 2. Get Comments
+    const { data: comments } = await supabase
+        .from('comments')
+        .select('*')
+        .eq('symbol', symbol)
+        .order('created_at', { ascending: false });
+
+    // 3. Get Profiles for those comments
+    let commentsWithProfiles = [];
+    if (comments && comments.length > 0) {
+        const userIds = Array.from(new Set(comments.map(c => c.user_id)));
+        const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, username')
+            .in('id', userIds);
+
+        const profileMap = (profiles || []).reduce((acc: any, profile: any) => {
+            acc[profile.id] = profile;
+            return acc;
+        }, {});
+
+        commentsWithProfiles = comments.map(c => ({
+            ...c,
+            profiles: profileMap[c.user_id]
+        }));
+    }
 
     return (
         <main className="min-h-screen bg-bg-primary text-text-primary">
@@ -40,18 +74,13 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
                     <div className="lg:col-span-8 space-y-6">
                         <TradingViewChart symbol={symbol} />
 
-                        {/* Analysis Tabs Stub */}
-                        <div className="bg-bg-surface border border-border-subtle rounded-xl p-4 min-h-[300px]">
-                            <div className="flex gap-4 border-b border-border-default pb-2">
-                                <button className="text-sm font-bold text-accent-green border-b-2 border-accent-green pb-2">Haberler</button>
-                                <button className="text-sm font-medium text-text-secondary hover:text-text-primary pb-2">Finansallar</button>
-                                <button className="text-sm font-medium text-text-secondary hover:text-text-primary pb-2">Teknik Analiz</button>
-                                <button className="text-sm font-medium text-text-secondary hover:text-text-primary pb-2">Şirket Profili</button>
-                            </div>
-                            <div className="py-4 text-text-secondary text-sm">
-                                {symbol.toUpperCase()} ile ilgili en son gelişmeler burada yer alacak. (Yakında)
-                            </div>
-                        </div>
+                        {/* Analysis Tabs Stub (Moved logic here or kept separate) */}
+                        {/* We insert CommentSection here */}
+                        <CommentSection
+                            symbol={symbol}
+                            currentUser={user}
+                            comments={commentsWithProfiles}
+                        />
                     </div>
 
                     {/* RIGHT COLUMN (Interaction) - 30% */}

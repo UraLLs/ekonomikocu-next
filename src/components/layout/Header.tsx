@@ -90,7 +90,7 @@ export default async function Header() {
                             <UserMenu user={user} />
                         </>
                     ) : (
-                        <Link href="/login" className="px-4.5 py-2 text-sm font-semibold text-white bg-gradient-to-br from-accent-green to-emerald-600 rounded-md hover:shadow-lg hover:shadow-accent-green/20 hover:-translate-y-0.5 transition-all">
+                        <Link href="/giris" className="px-4.5 py-2 text-sm font-semibold text-white bg-gradient-to-br from-accent-green to-emerald-600 rounded-md hover:shadow-lg hover:shadow-accent-green/20 hover:-translate-y-0.5 transition-all">
                             Giriş Yap
                         </Link>
                     )}

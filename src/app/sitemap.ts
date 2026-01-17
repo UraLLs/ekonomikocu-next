@@ -6,7 +6,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // Static pages
     const routes = [
         '',
-        '/login',
+        '/giris',
     ].map((route) => ({
         url: `${baseUrl}${route}`,
         lastModified: new Date(),

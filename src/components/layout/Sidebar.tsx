@@ -1,7 +1,10 @@
+import CurrencyConverter from "@/components/tools/CurrencyConverter";
 
 export default function Sidebar() {
     return (
         <aside className="flex flex-col gap-5 w-full lg:w-[340px] shrink-0">
+            {/* UTILITY WIDGET */}
+            <CurrencyConverter />
 
             {/* TREND POSTS WIDGET */}
             <div className="bg-bg-surface border border-border-subtle rounded-xl overflow-hidden">

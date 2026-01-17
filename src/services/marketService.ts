@@ -1,5 +1,10 @@
-// import yahooFinance from 'yahoo-finance2'; // Commented out for now
-// import { unstable_cache } from 'next/cache';
+import YahooFinance from 'yahoo-finance2';
+import { unstable_cache } from 'next/cache';
+
+// Instantiate the class as required by v2.x+
+const yahooFinance = new YahooFinance({
+    suppressNotices: ['yahooSurvey']
+});
 
 export interface MarketTicker {
     symbol: string;
@@ -8,34 +13,80 @@ export interface MarketTicker {
     up: boolean;
 }
 
-// Temporary Fallback Mock Service
-// We will re-enable Yahoo Finance after verifying the import in isolation.
+// Map local symbols to Yahoo Finance symbols
+function normalizeSymbol(symbol: string): string {
+    const s = symbol.toUpperCase();
 
-export async function getAssetDetail(symbol: string) {
-    // Mock Data Logic moved back here
-    const isCrypto = ['BTC', 'ETH', 'SOL', 'AVAX', 'USDT'].includes(symbol.toUpperCase());
+    // Crypto
+    if (s === 'BTC' || s === 'BTCUSDT') return 'BTC-USD';
+    if (s === 'ETH' || s === 'ETHUSDT') return 'ETH-USD';
+    if (s === 'SOL' || s === 'SOLUSDT') return 'SOL-USD';
+    if (s === 'AVAX' || s === 'AVAXUSDT') return 'AVAX-USD';
+    if (s === 'USDT' || s === 'USDTTRY') return 'TRY=X';
 
-    if (isCrypto) {
-        if (symbol.toUpperCase() === 'BTC') return { name: 'Bitcoin', price: '97,450.00', change: '2,450.00', changePercent: '2.40%', isUp: true };
-        if (symbol.toUpperCase() === 'ETH') return { name: 'Ethereum', price: '3,450.00', change: '-12.00', changePercent: '0.35%', isUp: false };
-        if (symbol.toUpperCase() === 'SOL') return { name: 'Solana', price: '145.00', change: '5.00', changePercent: '3.50%', isUp: true };
+    // Currency
+    if (s === 'USD') return 'TRY=X'; // USD to TRY
+    if (s === 'EUR') return 'EURTRY=X';
+
+    // BIST (Assume 4-5 chars is BIST if not crypto)
+    if (!s.includes('.') && s.length >= 4 && !['USDT', 'USD'].includes(s)) {
+        return `${s}.IS`;
     }
 
+    return s;
+}
+
+// Cached version of fetching quote
+const getQuoteCached = unstable_cache(
+    async (symbol: string) => {
+        try {
+            const querySymbol = normalizeSymbol(symbol);
+            const quote = await yahooFinance.quote(querySymbol);
+            return quote;
+        } catch (error) {
+            console.error(`Error fetching quote for ${symbol}:`, error);
+            return null;
+        }
+    },
+    ['market-quote'],
+    { revalidate: 60 } // Cache for 60 seconds
+);
+
+export async function getAssetDetail(symbol: string) {
+    const quote = await getQuoteCached(symbol);
+
+    if (!quote) {
+        // Fallback Mock Data on Error
+        const isCrypto = ['BTC', 'ETH', 'SOL', 'AVAX', 'USDT'].includes(symbol.toUpperCase());
+        if (symbol.toUpperCase() === 'THYAO') return { name: 'TÜRK HAVA YOLLARI A.O.', price: '284.50', change: '2.45', changePercent: '1.12%', isUp: true };
+        if (isCrypto) return { name: symbol, price: '0.00', change: '0.00', changePercent: '0.00%', isUp: true };
+
+        return {
+            name: symbol.toUpperCase(),
+            price: '0.00',
+            change: '0.00',
+            changePercent: '0.00%',
+            isUp: true
+        };
+    }
+
+    const price = quote.regularMarketPrice || 0;
+    const change = quote.regularMarketChange || 0;
+    const changePercent = quote.regularMarketChangePercent || 0;
+    const isUp = change >= 0;
+
+    let name = quote.longName || quote.shortName || symbol;
+
     return {
-        name: `${symbol.toUpperCase()} A.Ş.`,
-        price: '284.50',
-        change: '2.45',
-        changePercent: '1.12%',
-        isUp: true
+        name,
+        price: price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        change: change.toFixed(2),
+        changePercent: `%${Math.abs(changePercent).toFixed(2)}`,
+        isUp
     };
 }
 
 export async function getBinanceTicker(): Promise<MarketTicker[]> {
-    // Return mock ticker or fetch from Binance (Binance fetch is usually fine, but let's keep it simple)
-    // Actually Binance API was working fine before, but let's just return mock to be 100% safe for now.
-    // Or we can try to use the fetch again from previous working state.
-
-    // Let's restore the working Binance fetch as it was separate from Yahoo.
     try {
         const response = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbols=%5B%22BTCUSDT%22,%22ETHUSDT%22,%22USDTTRY%22,%22BNBUSDT%22,%22SOLUSDT%22%5D', {
             next: { revalidate: 60 }

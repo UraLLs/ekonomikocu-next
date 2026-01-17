@@ -2,6 +2,8 @@ import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { tr } from "date-fns/locale";
+import { awardXP } from "@/actions/gamification"; // IMPORT 1
+import UserBadge from "@/components/gamification/UserBadge"; // IMPORT 2
 
 // Using same interface but mock data for now or props
 // In a real app this would fetch async comments
@@ -13,6 +15,7 @@ interface Comment {
     profiles?: {
         username: string;
         avatar_url?: string;
+        level?: number; // ADDED
     };
     // Supabase usually returns these, or we count them. For now optional
     likes?: number;
@@ -29,12 +32,25 @@ export default function CommentFeed({ symbol, initialComments }: CommentFeedProp
     const [comments, setComments] = useState<Comment[]>(initialComments);
     const [newComment, setNewComment] = useState("");
     const [user, setUser] = useState<any>(null);
+    const [userProfile, setUserProfile] = useState<any>(null); // ADDED
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        supabase.auth.getUser().then(({ data }) => {
-            setUser(data.user);
-        });
+        const fetchUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                setUser(user);
+                // Fetch extended profile data
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+
+                setUserProfile(profile);
+            }
+        };
+        fetchUser();
     }, []);
 
     const handlePostComment = async () => {
@@ -55,19 +71,36 @@ export default function CommentFeed({ symbol, initialComments }: CommentFeedProp
             if (error) throw error;
 
             if (data) {
+                // Award XP
+                const xpResult = await awardXP(user.id, 'COMMENT');
+                if (xpResult.success && xpResult.isLevelUp) {
+                    // TODO: Toast notification for level up
+                    console.log("LEVEL UP!", xpResult.newLevel);
+                }
+
                 // Manually construct the comment object with profile data since we have it locally
                 // and want to avoid complex FK joins that might fail if schema isn't perfect
                 const newCommentObj: Comment = {
                     ...data,
                     profiles: {
-                        username: user.user_metadata?.username || user.email?.split('@')[0] || "Anonim",
-                        avatar_url: user.user_metadata?.avatar_url
+                        username: userProfile?.username || user.user_metadata?.username || user.email?.split('@')[0] || "Anonim",
+                        avatar_url: userProfile?.avatar_url || user.user_metadata?.avatar_url,
+                        level: xpResult.success ? xpResult.newLevel : (userProfile?.level || 1)
                     }
                 };
 
                 // Optimistic update
                 setComments(prev => [newCommentObj, ...prev]);
                 setNewComment("");
+
+                // Update local profile state if XP changed
+                if (xpResult.success) {
+                    setUserProfile((prev: any) => ({
+                        ...prev,
+                        xp: xpResult.newXP,
+                        level: xpResult.newLevel
+                    }));
+                }
             }
         } catch (error) {
             console.error("Error posting comment:", error);
@@ -112,7 +145,8 @@ export default function CommentFeed({ symbol, initialComments }: CommentFeedProp
                                         <span className="font-bold text-gray-200 text-sm group-hover:text-accent-blue transition-colors cursor-pointer">
                                             @{comment.profiles?.username}
                                         </span>
-                                        {/* Badge logic placeholder */}
+                                        {/* Badge logic */}
+                                        <UserBadge level={comment.profiles?.level || 1} />
                                     </div>
                                     <span className="text-xs text-gray-600 font-mono">
                                         {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true, locale: tr })}

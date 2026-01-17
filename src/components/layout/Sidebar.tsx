@@ -1,6 +1,24 @@
 import CurrencyConverter from "@/components/tools/CurrencyConverter";
+import Link from 'next/link'; // Import Link for client-side navigation
+import { formatDistanceToNow } from "date-fns";
+import { tr } from "date-fns/locale";
 
-export default function Sidebar() {
+interface Comment {
+    id: string;
+    content: string;
+    created_at: string;
+    symbol: string;
+    profiles?: {
+        username: string;
+        avatar_url?: string;
+    };
+}
+
+interface SidebarProps {
+    comments?: Comment[];
+}
+
+export default function Sidebar({ comments = [] }: SidebarProps) {
     return (
         <aside className="flex flex-col gap-5 w-full lg:w-[340px] shrink-0">
             {/* UTILITY WIDGET */}
@@ -13,42 +31,40 @@ export default function Sidebar() {
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z" /></svg>
                         Trend Paylaşımlar
                     </h3>
-                    <a href="#" className="text-[13px] font-medium text-accent-green hover:underline">Tümü</a>
+                    <Link href="/piyasa" className="text-[13px] font-medium text-accent-green hover:underline">Tümü</Link>
                 </div>
                 <div className="p-3">
-                    <div className="p-3 rounded-md hover:bg-bg-surface-hover cursor-pointer transition-colors mb-2">
-                        <div className="flex items-center gap-2.5 mb-2">
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=trader42" alt="" className="w-8 h-8 rounded-full bg-bg-elevated" />
-                            <div className="flex-1">
-                                <div className="text-[13px] font-semibold text-text-primary">Ahmet Yılmaz</div>
-                                <div className="text-[11px] text-text-muted">@trader42 • 2s önce</div>
-                            </div>
-                        </div>
-                        <p className="text-[13px] text-text-secondary leading-normal mb-2">
-                            BIST 100&apos;de 10.500 direnci kritik. Kırılırsa 11.000&apos;i hızlı görebiliriz. Bankacılık endeksi lokomotif olmaya devam ediyor 📈
-                        </p>
-                        <div className="flex gap-4 text-[11px] text-text-muted">
-                            <span className="flex items-center gap-1">❤️ 234</span>
-                            <span className="flex items-center gap-1">💬 42</span>
-                            <span className="flex items-center gap-1">🔄 18</span>
-                        </div>
-                    </div>
-                    <div className="p-3 rounded-md hover:bg-bg-surface-hover cursor-pointer transition-colors">
-                        <div className="flex items-center gap-2.5 mb-2">
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=crypto" alt="" className="w-8 h-8 rounded-full bg-bg-elevated" />
-                            <div className="flex-1">
-                                <div className="text-[13px] font-semibold text-text-primary">Kripto Analiz</div>
-                                <div className="text-[11px] text-text-muted">@kriptoanalist • 15d önce</div>
-                            </div>
-                        </div>
-                        <p className="text-[13px] text-text-secondary leading-normal mb-2">
-                            Bitcoin haftalık kapanış kritik. 95K üzeri kapanırsa ATH yolculuğu hızlanır.
-                        </p>
-                        <div className="flex gap-4 text-[11px] text-text-muted">
-                            <span className="flex items-center gap-1">❤️ 189</span>
-                            <span className="flex items-center gap-1">💬 31</span>
-                        </div>
-                    </div>
+                    {comments && comments.length > 0 ? (
+                        comments.slice(0, 5).map((comment) => (
+                            <Link href={`/piyasa/${comment.symbol}`} key={comment.id} className="block p-3 rounded-md hover:bg-bg-surface-hover cursor-pointer transition-colors mb-2">
+                                <div className="flex items-center gap-2.5 mb-2">
+                                    {comment.profiles?.avatar_url ? (
+                                        <img src={comment.profiles.avatar_url} alt="" className="w-8 h-8 rounded-full bg-bg-elevated object-cover" />
+                                    ) : (
+                                        <div className="w-8 h-8 rounded-full bg-bg-elevated flex items-center justify-center text-xs font-bold text-text-secondary border border-border-default">
+                                            {comment.profiles?.username?.charAt(0).toUpperCase() || '?'}
+                                        </div>
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="text-[13px] font-semibold text-text-primary truncate">{comment.profiles?.username || 'Anonim'}</div>
+                                        <div className="text-[11px] text-text-muted">
+                                            {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true, locale: tr })}
+                                        </div>
+                                    </div>
+                                </div>
+                                <p className="text-[13px] text-text-secondary leading-normal mb-2 line-clamp-2">
+                                    <span className="font-bold text-accent-green mr-1">{comment.symbol}</span>
+                                    {comment.content}
+                                </p>
+                                <div className="flex gap-4 text-[11px] text-text-muted">
+                                    <span className="flex items-center gap-1">❤️ 0</span>
+                                    <span className="flex items-center gap-1">💬 0</span>
+                                </div>
+                            </Link>
+                        ))
+                    ) : (
+                        <div className="text-center text-text-muted py-4 text-sm">Henüz paylaşım yok.</div>
+                    )}
                 </div>
             </div>
 

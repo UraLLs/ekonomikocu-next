@@ -1,4 +1,3 @@
-
 import Header from "@/components/layout/Header";
 import Ticker from "@/components/layout/Ticker";
 import Stories from "@/components/features/Stories";
@@ -8,7 +7,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import Footer from "@/components/layout/Footer";
 
 import { createClient } from "@/utils/supabase/server";
-import HomeFeed from "@/components/features/HomeFeed";
+// import HomeFeed from "@/components/features/HomeFeed"; // Removed as requested
 
 export const revalidate = 60; // Revalidate every minute
 
@@ -52,15 +51,15 @@ export default async function Home() {
 
           {/* MAIN CONTENT AREA */}
           <div className="flex-1 flex flex-col gap-6 min-w-0">
-            {/* Real Social Feed */}
-            <HomeFeed comments={feedData} />
+            {/* Restored Stories */}
+            <Stories />
 
             <NewsSection />
             <FinanceTools />
           </div>
 
-          {/* SIDEBAR AREA */}
-          <Sidebar />
+          {/* SIDEBAR AREA - Passing feedData here */}
+          <Sidebar comments={feedData} />
 
         </div>
       </div>

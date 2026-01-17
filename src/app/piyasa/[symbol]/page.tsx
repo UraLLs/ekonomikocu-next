@@ -5,6 +5,24 @@ import TradingViewChart from "@/components/asset-detail/TradingViewChart";
 import WarRoom from "@/components/asset-detail/WarRoom";
 import SentimentGauge from "@/components/asset-detail/SentimentGauge";
 import ActionPanel from "@/components/asset-detail/ActionPanel";
+import { Metadata } from "next";
+
+export async function generateMetadata({ params }: { params: Promise<{ symbol: string }> }): Promise<Metadata> {
+    const { symbol } = await params;
+    const upperSymbol = symbol.toUpperCase();
+
+    return {
+        title: `${upperSymbol} Hisse Detay ve Yorumları | Ekonomikoçu`,
+        description: `${upperSymbol} hissesi için canlı fiyat, grafik, teknik analiz ve yatırımcı yorumlarını inceleyin. Ekonomikoçu ile piyasanın nabzını tutun.`,
+        openGraph: {
+            title: `${upperSymbol} Canlı Fiyatı - Ekonomikoçu`,
+            description: `${upperSymbol} teknik analizi ve uzman yorumları.`,
+            siteName: 'Ekonomikoçu',
+            locale: 'tr_TR',
+            type: 'website',
+        },
+    };
+}
 
 export default async function AssetPage({ params }: { params: Promise<{ symbol: string }> }) {
     const { symbol } = await params;

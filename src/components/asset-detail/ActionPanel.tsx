@@ -1,10 +1,13 @@
 import { createClient } from "@/utils/supabase/server";
+import TradeForm from "./TradeForm";
 
 export default async function ActionPanel({ symbol }: { symbol: string }) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     let balance = 0;
+    let ownedQuantity = 0;
+
     if (user) {
         const { data: profile } = await supabase
             .from('profiles')
@@ -12,7 +15,20 @@ export default async function ActionPanel({ symbol }: { symbol: string }) {
             .eq('id', user.id)
             .single();
         balance = profile?.balance || 0;
+
+        const { data: portfolio } = await supabase
+            .from('portfolios')
+            .select('quantity')
+            .eq('user_id', user.id)
+            .eq('symbol', symbol)
+            .single();
+        ownedQuantity = portfolio?.quantity || 0;
     }
+
+    // Gerçek fiyat entegrasyonu sonraki adımda detaylı yapılacak
+    // Şimdilik sembolik bir fiyat belirleyelim
+    const mockPrice = 125.40;
+
     return (
         <div className="bg-bg-surface border border-border-subtle rounded-xl p-4 shadow-sm">
             <div className="flex items-center justify-between mb-4">
@@ -22,20 +38,11 @@ export default async function ActionPanel({ symbol }: { symbol: string }) {
                 </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 mb-4">
-                <button className="flex flex-col items-center justify-center p-3 rounded-lg bg-accent-green hover:bg-accent-green/90 text-white transition-colors group">
-                    <span className="text-lg font-bold">AL</span>
-                    <span className="text-[10px] opacity-80 group-hover:opacity-100">Long</span>
-                </button>
-                <button className="flex flex-col items-center justify-center p-3 rounded-lg bg-accent-red hover:bg-accent-red/90 text-white transition-colors group">
-                    <span className="text-lg font-bold">SAT</span>
-                    <span className="text-[10px] opacity-80 group-hover:opacity-100">Short</span>
-                </button>
-            </div>
+            <TradeForm symbol={symbol} currentPrice={mockPrice} />
 
-            <div className="flex items-center justify-between text-xs text-text-muted bg-bg-elevated p-2 rounded">
-                <span>Pozisyon:</span>
-                <span className="font-bold text-text-primary">Yok</span>
+            <div className="flex items-center justify-between text-xs text-text-muted bg-bg-elevated p-2 rounded mt-4">
+                <span>Portföyünüz:</span>
+                <span className="font-bold text-text-primary">{ownedQuantity} Adet</span>
             </div>
         </div>
     );

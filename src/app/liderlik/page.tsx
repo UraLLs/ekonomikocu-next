@@ -11,7 +11,7 @@ export default async function LeaderboardPage() {
     // 1. Fetch Users & Balances
     const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, username, balance');
+        .select('id, username, balance, full_name');
 
     // 2. Fetch All Portfolios
     const { data: portfolios, error: portfoliosError } = await supabase

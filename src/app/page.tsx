@@ -7,7 +7,41 @@ import FinanceTools from "@/components/features/FinanceTools";
 import Sidebar from "@/components/layout/Sidebar";
 import Footer from "@/components/layout/Footer";
 
-export default function Home() {
+import { createClient } from "@/utils/supabase/server";
+import HomeFeed from "@/components/features/HomeFeed";
+
+export const revalidate = 60; // Revalidate every minute
+
+export default async function Home() {
+  const supabase = await createClient();
+
+  // 1. Fetch Comments
+  const { data: comments } = await supabase
+    .from('comments')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(10);
+
+  // 2. Fetch Profiles for these comments
+  let feedData = [];
+  if (comments && comments.length > 0) {
+    const userIds = Array.from(new Set(comments.map(c => c.user_id)));
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, username, avatar_url')
+      .in('id', userIds);
+
+    const profileMap = (profiles || []).reduce((acc: any, profile: any) => {
+      acc[profile.id] = profile;
+      return acc;
+    }, {});
+
+    feedData = comments.map(c => ({
+      ...c,
+      profiles: profileMap[c.user_id]
+    }));
+  }
+
   return (
     <main className="min-h-screen bg-bg-primary text-text-primary">
       <Ticker />
@@ -18,7 +52,9 @@ export default function Home() {
 
           {/* MAIN CONTENT AREA */}
           <div className="flex-1 flex flex-col gap-6 min-w-0">
-            <Stories />
+            {/* Real Social Feed */}
+            <HomeFeed comments={feedData} />
+
             <NewsSection />
             <FinanceTools />
           </div>

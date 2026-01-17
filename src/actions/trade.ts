@@ -53,8 +53,19 @@ export async function executeTrade(symbol: string, type: 'BUY' | 'SELL', quantit
                 .single();
 
             let newQuantity = quantity;
+            let newAverageCost = price;
+
             if (portfolioItem) {
-                newQuantity += Number(portfolioItem.quantity);
+                const currentQty = Number(portfolioItem.quantity);
+                const currentAvg = Number(portfolioItem.average_cost) || 0;
+
+                // Calculate Weighted Average Cost
+                if (currentQty + quantity > 0) {
+                    const totalCost = (currentQty * currentAvg) + (quantity * price);
+                    newAverageCost = totalCost / (currentQty + quantity);
+                }
+
+                newQuantity += currentQty;
             }
 
             const { error: portfolioError } = await supabase
@@ -63,6 +74,7 @@ export async function executeTrade(symbol: string, type: 'BUY' | 'SELL', quantit
                     user_id: user.id,
                     symbol: symbol,
                     quantity: newQuantity,
+                    average_cost: newAverageCost,
                     updated_at: new Date()
                 }, { onConflict: 'user_id, symbol' });
 

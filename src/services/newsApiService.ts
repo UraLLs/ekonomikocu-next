@@ -30,114 +30,110 @@ export async function getProfessionalNews(query?: string): Promise<NewsItem[]> {
 
         console.log(`Fetching Google RSS (TR): ${searchTerm}`);
 
+
         const feed = await parser.parseURL(url);
 
-        if (feed.items && feed.items.length > 0) {
-            // Return Top 15 Items
-            const initialItems = feed.items.slice(0, 15).map((item, index) => {
-                const title = item.title || 'Başlıksız Haber';
-                const slug = slugify(title, { lower: true, strict: true, locale: 'tr' }) + '-' + Math.floor(Math.random() * 1000);
-
-                // 1. Try to find real image in various RSS fields
-                let image = undefined;
-
-                // Check content string for img tag
-                if (!image && item.content) {
-                    const imgMatch = item.content.match(/src=["'](.*?)["']/);
-                    if (imgMatch) image = imgMatch[1];
-                }
-
-                // Check 'content:encoded' if available
-                if (!image && item['content:encoded']) {
-                    const imgMatch = item['content:encoded'].match(/src=["'](.*?)["']/);
-                    if (imgMatch) image = imgMatch[1];
-                }
-
-                // Check description if available
-                if (!image && item.description) {
-                    const imgMatch = item.description.match(/src=["'](.*?)["']/);
-                    if (imgMatch) image = imgMatch[1];
-                }
-
-                // Filter out tracking pixels or tiny icons (common in Google RSS)
-                if (image && image.includes('tracker')) image = undefined;
-                if (image && image.includes('1x1')) image = undefined;
-
-                // 2. Fallback to Random Professional Image (Deterministic based on title length or random slug)
-                if (!image) {
-                    // Pick an image based on title length to keep it consistent for same news, but varied across list
-                    const imageIndex = (title.length + index) % FALLBACK_IMAGES.length;
-                    image = FALLBACK_IMAGES[imageIndex];
-                }
-
-                // Clean source name (Google News format: "Title - Source")
-                let finalTitle = title;
-                let sourceName = 'Google News';
-
-                const lastDash = title.lastIndexOf(' - ');
-                if (lastDash > -1) {
-                    sourceName = title.substring(lastDash + 3);
-                    finalTitle = title.substring(0, lastDash);
-                }
-
-                return {
-                    id: slug,
-                    title: finalTitle,
-                    slug: slug,
-                    link: item.link || '#',
-                    pubDate: item.pubDate || new Date().toISOString(),
-                    contentSnippet: item.contentSnippet || item.content || finalTitle,
-                    source: sourceName,
-                    image: image,
-                    sentiment: 'NEUTRAL' as const
-                };
-            });
-
-            // 2. SMART NEWS ENRICHMENT (Gemini + Market Data)
-            // Extract plain objects for Gemini (Top 6 only to save tokens)
-            const newsItems = [...initialItems]; // Clone
-
-            // !!! STABILIZATION: BYPASSING ENRICHMENT TO ENSURE NEWS DISPLAY !!!
-            return newsItems;
-
-            /* 
-            const headlinesForAI = newsItems.slice(0, 6).map(n => ({
-                title: n.title,
-                id: n.link
-            }));
-
-            try {
-                // ... (keep existing logic commented out)
-            } catch (e) {
-                console.warn("Smart News enrichment failed (Gemini/Market):", e);
-                return newsItems;
-            } 
-            */
+        if (!feed.items || feed.items.length === 0) {
+            throw new Error("RSS returned no items");
         }
 
-        throw new Error("RSS returned no items");
+        // Return Top 15 Items
+        const initialItems = feed.items.slice(0, 15).map((item, index) => {
+            const title = item.title || 'Başlıksız Haber';
+            const slug = slugify(title, { lower: true, strict: true, locale: 'tr' }) + '-' + Math.floor(Math.random() * 1000);
+
+            // 1. Try to find real image in various RSS fields
+            let image = undefined;
+
+            // Check content string for img tag
+            if (!image && item.content) {
+                const imgMatch = item.content.match(/src=["'](.*?)["']/);
+                if (imgMatch) image = imgMatch[1];
+            }
+
+            // Check 'content:encoded' if available
+            if (!image && item['content:encoded']) {
+                const imgMatch = item['content:encoded'].match(/src=["'](.*?)["']/);
+                if (imgMatch) image = imgMatch[1];
+            }
+
+            // Check description if available
+            if (!image && item.description) {
+                const imgMatch = item.description.match(/src=["'](.*?)["']/);
+                if (imgMatch) image = imgMatch[1];
+            }
+
+            // Filter out tracking pixels or tiny icons (common in Google RSS)
+            if (image && image.includes('tracker')) image = undefined;
+            if (image && image.includes('1x1')) image = undefined;
+
+            // 2. Fallback to Random Professional Image (Deterministic based on title length or random slug)
+            if (!image) {
+                // Pick an image based on title length to keep it consistent for same news, but varied across list
+                const imageIndex = (title.length + index) % FALLBACK_IMAGES.length;
+                image = FALLBACK_IMAGES[imageIndex];
+            }
+
+            // Clean source name (Google News format: "Title - Source")
+            let finalTitle = title;
+            let sourceName = 'Google News';
+
+            const lastDash = title.lastIndexOf(' - ');
+            if (lastDash > -1) {
+                sourceName = title.substring(lastDash + 3);
+                finalTitle = title.substring(0, lastDash);
+            }
+
+            return {
+                id: slug,
+                title: finalTitle,
+                slug: slug,
+                link: item.link || '#',
+                pubDate: item.pubDate || new Date().toISOString(),
+                contentSnippet: item.contentSnippet || item.content || finalTitle,
+                source: sourceName,
+                image: image,
+                sentiment: 'NEUTRAL' as const
+            };
+        });
+
+        // 2. SMART NEWS ENRICHMENT (Gemini + Market Data)
+        // Extract plain objects for Gemini (Top 6 only to save tokens)
+        const newsItems = [...initialItems]; // Clone
+
+        // !!! STABILIZATION: BYPASSING ENRICHMENT TO ENSURE NEWS DISPLAY !!!
+        return newsItems;
 
     } catch (error) {
-        console.error("Error fetching Google News RSS, trying fallback:", error);
+        // Warn instead of error for cleaner logs on expected RSS failures
+        console.warn("Google News RSS failed or empty, switching to Yahoo Finance fallback.");
 
         // --- FALLBACK: YAHOO FINANCE SEARCH ---
         try {
-            const { default: yahooFinance } = await import('yahoo-finance2');
+            const { default: YahooFinance } = await import('yahoo-finance2');
+            const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
+
             const result = await yahooFinance.search(query || 'Ekonomi', { newsCount: 10 });
 
-            const newsResult = result as { news?: Array<{ uuid?: string; title: string; link: string; providerPublishTime: number; publisher?: string }> };
+            // Type assertion to handle potential v2 interface (Date or number)
+            const newsResult = result as unknown as { news?: Array<{ uuid?: string; title: string; link: string; providerPublishTime: Date | number; publisher?: string }> };
+
             if (newsResult.news && newsResult.news.length > 0) {
                 return newsResult.news.map((item, index) => {
-                    // Similar image logic for Yahoo
                     const imageIndex = (item.title.length + index) % FALLBACK_IMAGES.length;
                     const image = FALLBACK_IMAGES[imageIndex];
+
+                    // Handle Date or Number for time
+                    const pubTime = item.providerPublishTime instanceof Date
+                        ? item.providerPublishTime.toISOString()
+                        : new Date((item.providerPublishTime || 0) * 1000).toISOString();
 
                     return {
                         id: item.uuid || `yf-${index}`,
                         title: item.title,
                         slug: slugify(item.title, { lower: true, strict: true, locale: 'tr' }),
                         link: item.link,
-                        pubDate: new Date(item.providerPublishTime * 1000).toISOString(),
+                        pubDate: pubTime,
                         contentSnippet: item.title,
                         source: item.publisher || 'Yahoo Finance',
                         image: image,

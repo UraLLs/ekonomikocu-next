@@ -38,3 +38,14 @@ export interface BinanceTickerItem {
     lastId: number;
     count: number;
 }
+
+export interface KapStory {
+    id: string;
+    title: string;
+    company: string; // e.g. "THYAO", "KAP"
+    time: string; // e.g. "10:45"
+    fullDate: string;
+    url?: string;
+    viewed: boolean;
+    isLive?: boolean;
+}

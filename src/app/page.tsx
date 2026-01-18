@@ -1,7 +1,7 @@
 import Header from "@/components/layout/Header";
 import Ticker from "@/components/layout/Ticker";
 import HeroSection from "@/components/features/HeroSection";
-import Stories from "@/components/features/Stories";
+import KapStories from "@/components/features/KapStories";
 import NewsSection from "@/components/features/NewsSection";
 import FinanceTools from "@/components/features/FinanceTools";
 import Sidebar from "@/components/layout/Sidebar";
@@ -57,8 +57,8 @@ export default async function Home() {
             {/* Premium Hero Section */}
             <HeroSection />
 
-            {/* Restored Stories */}
-            <Stories />
+            {/* KAP Stories */}
+            <KapStories />
 
             <NewsSection />
             <FinanceTools />

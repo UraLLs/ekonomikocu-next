@@ -163,7 +163,7 @@ export async function getAssetDetail(symbol: string) {
     };
 }
 
-import { MarketTicker, BinanceTickerItem } from "@/types/market";
+import { MarketTicker, BinanceTickerItem, KapStory } from "@/types/market";
 
 export async function getBinanceTicker(): Promise<MarketTicker[]> {
     try {
@@ -203,6 +203,72 @@ export async function getBinanceTicker(): Promise<MarketTicker[]> {
         return [
             { symbol: "BTC/USD", price: "97,500.00", changePercent: "%0.00", up: true },
             { symbol: "DOLAR/TL", price: "35.5000", changePercent: "%0.00", up: true },
+        ];
+    }
+}
+
+// KAP News Simulation using Yahoo Finance Search
+
+// Cache for news to avoid hitting rate limits too hard on the API route
+const NEWS_CACHE = {
+    data: [] as KapStory[],
+    lastFetch: 0
+};
+
+export async function getKapNews(): Promise<KapStory[]> {
+    const now = Date.now();
+    // Cache for 60 seconds
+    if (now - NEWS_CACHE.lastFetch < 60000 && NEWS_CACHE.data.length > 0) {
+        return NEWS_CACHE.data;
+    }
+
+    try {
+        // Search news for major BIST companies to simulate KAP stream
+        const symbols = ["THYAO.IS", "GARAN.IS", "ASELS.IS", "KCHOL.IS", "AKBNK.IS", "EREGL.IS", "SISE.IS", "BIMAS.IS"];
+
+        // Yahoo Finance v2 'search' returns news in 'news' array
+        // We'll search for 'BIST' generally to get broad news, or iterate symbols if needed.
+        // Searching for "BIST İstanbul" often yields better general market news
+        const result = await yahooFinance.search("Borsa İstanbul", { newsCount: 10 });
+
+        const rawNews = result.news || [];
+
+        const stories: KapStory[] = rawNews.map((item: any) => {
+            // Generate a realistic "Company" tag if possible, otherwise generic
+            let company = "KAP";
+            if (item.title.includes("THY")) company = "THYAO";
+            else if (item.title.includes("Garanti")) company = "GARAN";
+            else if (item.title.includes("Aselsan")) company = "ASELS";
+            else if (item.title.includes("Koç")) company = "KCHOL";
+            else if (item.title.includes("Akbank")) company = "AKBNK";
+            else if (item.title.includes("Ereğli")) company = "EREGL";
+            else if (item.title.includes("Borsa")) company = "BIST";
+
+            return {
+                id: item.uuid || Buffer.from(item.title).toString('base64').substring(0, 10),
+                title: item.title,
+                company,
+                time: new Date(item.providerPublishTime * 1000).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+                fullDate: new Date(item.providerPublishTime * 1000).toISOString(),
+                url: item.link,
+                viewed: false,
+                isLive: true
+            };
+        });
+
+        NEWS_CACHE.data = stories;
+        NEWS_CACHE.lastFetch = now;
+        return stories;
+
+    } catch (e) {
+        console.error("Error fetching KAP news:", e);
+        // Fallback Mock Data
+        return [
+            { id: "1", title: "Şirket Genel Bilgi Formu", company: "THYAO", time: "10:45", fullDate: new Date().toISOString(), viewed: false, isLive: true },
+            { id: "2", title: "Kar Payı Dağıtım İşlemleri", company: "EREGL", time: "10:30", fullDate: new Date().toISOString(), viewed: false, isLive: true },
+            { id: "3", title: "Özel Durum Açıklaması (Genel)", company: "ASELS", time: "09:15", fullDate: new Date().toISOString(), viewed: false, isLive: true },
+            { id: "4", title: "Pay Alım Satım Bildirimi", company: "SASA", time: "09:00", fullDate: new Date().toISOString(), viewed: false, isLive: true },
+            { id: "5", title: "Finansal Rapor", company: "GARAN", time: "08:55", fullDate: new Date().toISOString(), viewed: false, isLive: true },
         ];
     }
 }

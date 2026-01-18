@@ -1,7 +1,12 @@
-import { IPOS } from "@/data/ipos";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
-export default function IPOArena() {
+interface IPOArenaProps {
+    ipos: any[];
+}
+
+export default function IPOArena({ ipos }: IPOArenaProps) {
+    if (!ipos || ipos.length === 0) return null;
+
     return (
         <div className="mt-8 mb-8">
             <div className="flex items-center justify-between mb-6">
@@ -28,7 +33,7 @@ export default function IPOArena() {
                 <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-bg-primary to-transparent z-10 pointer-events-none" />
 
                 <div className="flex overflow-x-auto gap-4 pb-6 snap-x snap-mandatory custom-scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
-                    {IPOS.map((ipo) => (
+                    {ipos.map((ipo) => (
                         <div
                             key={ipo.id}
                             className="snap-start shrink-0 w-[240px] h-[140px] relative rounded-2xl overflow-hidden cursor-pointer group/card transition-transform hover:-translate-y-1 shadow-2xl"
@@ -38,9 +43,6 @@ export default function IPOArena() {
                                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover/card:scale-110"
                                 style={{ backgroundImage: "url('/images/ipo-bg.png')" }}
                             />
-
-                            {/* Company Logo Color Overlay (Subtle tint) */}
-                            <div className={`absolute inset-0 ${ipo.logoColor} opacity-20 mix-blend-overlay`} />
 
                             {/* Aggressive Gradient Overlay for Readability */}
                             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/30" />
@@ -56,14 +58,14 @@ export default function IPOArena() {
                                     ) : ipo.status === 'completed' ? (
                                         <div className="w-2.5 h-2.5 rounded-full bg-gray-500" title="Tamamlandı" />
                                     ) : (
-                                        <div className="w-2.5 h-2.5 rounded-full bg-accent-blue" title="Yakında" />
+                                        <div className="w-2.5 h-2.5 rounded-full bg-accent-orange" title="Onay Bekliyor" />
                                     )}
                                 </div>
 
                                 {/* Bottom Row: Info */}
                                 <div>
                                     <h3 className="text-base font-bold text-white leading-tight mb-2 drop-shadow-md line-clamp-1">
-                                        {ipo.companyName}
+                                        {ipo.company_name}
                                     </h3>
 
                                     <div className="grid grid-cols-2 gap-2 text-[10px] font-medium text-gray-300">
@@ -73,7 +75,7 @@ export default function IPOArena() {
                                         </div>
                                         <div className="bg-black/40 rounded px-2 py-1 border border-white/5 backdrop-blur-sm text-right">
                                             <span className="block text-gray-500 text-[9px] uppercase">Tarih</span>
-                                            <span className="text-white font-bold">{ipo.date}</span>
+                                            <span className="text-white font-bold">{ipo.date_range}</span>
                                         </div>
                                     </div>
                                 </div>

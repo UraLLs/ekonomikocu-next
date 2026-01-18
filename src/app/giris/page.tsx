@@ -2,7 +2,7 @@
 
 import { createClient } from "@/utils/supabase/client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
 export default function LoginPage() {
@@ -12,6 +12,7 @@ export default function LoginPage() {
     const [message, setMessage] = useState<{ text: string; type: "error" | "success" } | null>(null);
     const [isSignUp, setIsSignUp] = useState(false);
     const router = useRouter();
+    const searchParams = useSearchParams();
     const supabase = createClient();
 
     // Clear message when switching modes
@@ -41,7 +42,10 @@ export default function LoginPage() {
                     password,
                 });
                 if (error) throw error;
-                router.push("/profil"); // Redirect to profile after login
+                if (error) throw error;
+
+                const nextUrl = searchParams.get('next') || '/profil';
+                router.push(nextUrl);
                 router.refresh();
             }
         } catch (error: any) {

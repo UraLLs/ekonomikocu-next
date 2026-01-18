@@ -51,8 +51,11 @@ export default async function Home() {
     }));
   }
 
-  // 3. Fetch Currency Rates
-  const rates = await getCurrencyRates();
+  // 3. Fetch Currency Rates & IPOs
+  const [rates, { data: ipos }] = await Promise.all([
+    getCurrencyRates(),
+    supabase.from('ipos').select('*').in('status', ['active', 'upcoming']).order('created_at', { ascending: false })
+  ]);
 
   return (
     <main className="min-h-screen bg-bg-primary text-text-primary">
@@ -76,7 +79,7 @@ export default async function Home() {
             </Suspense>
 
             {/* HALKA ARZ ARENASI (New Premium Section) */}
-            <IPOArena />
+            <IPOArena ipos={ipos || []} />
           </div>
 
           {/* SIDEBAR AREA - Passing feedData here */}

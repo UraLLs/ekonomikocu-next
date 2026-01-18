@@ -3,17 +3,18 @@
 import { useState } from "react";
 import CourseCard from "@/components/education/CourseCard";
 import CategoryFilter from "@/components/education/CategoryFilter";
-import { COURSES } from "@/data/education";
+// import { COURSES } from "@/data/education"; // Mock removed
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
-export default function EducationCatalog() {
+export default function EducationCatalog({ initialCourses }: { initialCourses: any[] }) {
     const [activeCategory, setActiveCategory] = useState("Tümü");
     const [searchQuery, setSearchQuery] = useState("");
 
-    const filteredCourses = COURSES.filter(course => {
-        const matchesCategory = activeCategory === "Tümü" || course.category === activeCategory;
+    const filteredCourses = initialCourses.filter(course => {
+        // Mock category logic since DB doesn't have categories yet
+        const matchesCategory = activeCategory === "Tümü" || true;
         const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            course.description.toLowerCase().includes(searchQuery.toLowerCase());
+            course.description?.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesCategory && matchesSearch;
     });
 

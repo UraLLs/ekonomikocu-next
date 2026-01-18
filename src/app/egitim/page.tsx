@@ -10,13 +10,22 @@ export const metadata = {
 };
 
 export default async function EducationPage() {
+    const supabase = await createClient();
+
+    // Fetch courses with lesson count
+    const { data: courses } = await supabase
+        .from('courses')
+        .select('*, lessons(count)')
+        .eq('is_published', true)
+        .order('created_at', { ascending: false });
+
     return (
         <main className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
             <Header />
             <div className="flex-1 flex flex-col lg:flex-row max-w-[1600px] mx-auto w-full">
                 {/* Main Content Area */}
                 <div className="flex-1 min-w-0">
-                    <EducationCatalog />
+                    <EducationCatalog initialCourses={courses || []} />
                 </div>
 
                 {/* Specific Education Sidebar */}

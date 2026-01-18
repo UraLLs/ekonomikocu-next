@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 
 import { Providers } from "@/components/providers/Providers";
 import Ticker from "@/components/layout/Ticker";
+import Script from "next/script";
 
 export default function RootLayout({
   children,
@@ -23,6 +24,21 @@ export default function RootLayout({
   return (
     <html lang="tr" suppressHydrationWarning>
       <body className={`${inter.variable} antialiased`} suppressHydrationWarning>
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-4G9FDXH4LY"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-4G9FDXH4LY');
+          `}
+        </Script>
+
         <Providers>
           <Ticker />
           {children}

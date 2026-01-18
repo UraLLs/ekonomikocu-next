@@ -26,7 +26,7 @@ export default function RootLayout({
       <body className={`${inter.variable} antialiased`} suppressHydrationWarning>
         {/* Google Analytics */}
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-4G9FDXH4LY"
+          src="https://www.googletagmanager.com/gtag/js?id=G-3F88MMWKCF"
           strategy="afterInteractive"
         />
         <Script id="google-analytics" strategy="afterInteractive">
@@ -35,7 +35,7 @@ export default function RootLayout({
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
 
-            gtag('config', 'G-4G9FDXH4LY');
+            gtag('config', 'G-3F88MMWKCF');
           `}
         </Script>
 

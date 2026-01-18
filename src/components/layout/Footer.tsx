@@ -1,4 +1,6 @@
 
+import { Twitter, Instagram, Youtube, Send } from "lucide-react";
+
 export default function Footer() {
     return (
         <footer className="bg-black/80 backdrop-blur-xl border-t border-white/5 mt-auto relative overflow-hidden">
@@ -23,12 +25,18 @@ export default function Footer() {
                             Türkiye&apos;nin en kapsamlı finansal sosyal platformu. Piyasaları takip edin, analizler paylaşın, eğitimlerle gelişin.
                         </p>
                         <div className="flex gap-2">
-                            {['Twitter', 'Instagram', 'YouTube', 'Telegram'].map((social) => (
-                                <a key={social} href="#" className="w-9 h-9 bg-bg-secondary border border-border-subtle rounded-md flex items-center justify-center text-text-secondary hover:bg-accent-green hover:border-accent-green hover:text-white hover:-translate-y-0.5 transition-all">
-                                    {/* Placeholder Icon */}
-                                    <div className="w-4 h-4 bg-current rounded-sm opacity-50" />
-                                </a>
-                            ))}
+                            <a href="#" className="w-9 h-9 bg-bg-secondary border border-border-subtle rounded-md flex items-center justify-center text-text-secondary hover:bg-accent-green hover:border-accent-green hover:text-white hover:-translate-y-0.5 transition-all">
+                                <Twitter className="w-4 h-4" />
+                            </a>
+                            <a href="#" className="w-9 h-9 bg-bg-secondary border border-border-subtle rounded-md flex items-center justify-center text-text-secondary hover:bg-accent-green hover:border-accent-green hover:text-white hover:-translate-y-0.5 transition-all">
+                                <Instagram className="w-4 h-4" />
+                            </a>
+                            <a href="#" className="w-9 h-9 bg-bg-secondary border border-border-subtle rounded-md flex items-center justify-center text-text-secondary hover:bg-accent-green hover:border-accent-green hover:text-white hover:-translate-y-0.5 transition-all">
+                                <Youtube className="w-4 h-4" />
+                            </a>
+                            <a href="#" className="w-9 h-9 bg-bg-secondary border border-border-subtle rounded-md flex items-center justify-center text-text-secondary hover:bg-accent-green hover:border-accent-green hover:text-white hover:-translate-y-0.5 transition-all">
+                                <Send className="w-4 h-4" />
+                            </a>
                         </div>
                     </div>
 

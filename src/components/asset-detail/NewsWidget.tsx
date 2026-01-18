@@ -1,3 +1,5 @@
+"use client";
+
 import { NewsItem } from "@/services/newsService";
 import { formatDistanceToNow } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -25,24 +27,46 @@ export default function NewsWidget({ news }: NewsWidgetProps) {
                     <div className="text-sm text-gray-500 text-center py-4">Haber akışı bekleniyor...</div>
                 ) : (
                     news.map((item, index) => (
-                        <a key={index} href={`/haber/${item.slug}?url=${encodeURIComponent(item.link)}&title=${encodeURIComponent(item.title)}&date=${encodeURIComponent(item.pubDate)}&image=${encodeURIComponent(item.image || "")}`} className="block group relative">
-                            <div className="flex justify-between items-start mb-1">
-                                {index === 0 && (
-                                    <span className="absolute -top-1 -right-1 flex h-2 w-2">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-red opacity-75"></span>
-                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-red"></span>
-                                    </span>
-                                )}
-                                <div className="text-[10px] text-gray-500 font-mono mb-1">
-                                    {formatDistanceToNow(new Date(item.pubDate), { addSuffix: true, locale: tr })}
+                        <a key={index} href={`/haber/${item.slug}?url=${encodeURIComponent(item.link)}&title=${encodeURIComponent(item.title)}&date=${encodeURIComponent(item.pubDate)}&image=${encodeURIComponent(item.image || "")}`} className="flex gap-3 group relative p-2 rounded-xl border border-transparent hover:border-white/10 hover:bg-white/5 transition-all duration-300">
+                            {/* Image Thumbnail */}
+                            {item.image && (
+                                <div className="w-[60px] h-[60px] flex-shrink-0 rounded-lg overflow-hidden relative border border-white/10">
+                                    <img
+                                        src={item.image}
+                                        alt={item.title}
+                                        className="object-cover w-full h-full opacity-80 group-hover:opacity-100 transition-opacity"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).style.display = 'none'; // Hide if broken
+                                        }}
+                                    />
                                 </div>
-                            </div>
-                            <h4 className="text-sm font-medium text-gray-200 leading-snug group-hover:text-accent-blue transition-colors cursor-pointer">
-                                {item.title}
-                            </h4>
-                            <div className="text-[10px] text-gray-600 mt-1 flex items-center gap-1">
-                                <span className="w-1 h-1 rounded-full bg-gray-600"></span>
-                                {item.source}
+                            )}
+
+                            <div className="flex-1 min-w-0">
+                                <div className="flex justify-between items-start mb-1">
+                                    {index === 0 && (
+                                        <span className="absolute top-2 right-2 flex h-2 w-2">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-red opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-red"></span>
+                                        </span>
+                                    )}
+                                </div>
+                                <h4 className="text-xs font-semibold text-gray-200 leading-snug group-hover:text-accent-blue transition-colors line-clamp-2">
+                                    {item.title}
+                                </h4>
+                                <div className="text-[10px] text-gray-500 font-mono mt-1 flex items-center gap-1 flex-wrap">
+                                    <span>{formatDistanceToNow(new Date(item.pubDate), { addSuffix: true, locale: tr })}</span>
+                                    <span className="w-0.5 h-0.5 rounded-full bg-gray-600"></span>
+                                    <span>{item.source}</span>
+                                    {item.relatedTicker && (
+                                        <>
+                                            <span className="w-0.5 h-0.5 rounded-full bg-gray-600"></span>
+                                            <span className={`font-bold ${item.relatedTicker.isUp ? 'text-accent-green' : 'text-accent-red'}`}>
+                                                {item.relatedTicker.symbol} {item.relatedTicker.changePercent}
+                                            </span>
+                                        </>
+                                    )}
+                                </div>
                             </div>
                         </a>
                     ))

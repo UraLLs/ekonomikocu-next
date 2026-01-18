@@ -94,8 +94,8 @@ export default async function NewsDetailPage({ params, searchParams }: Props) {
                             </span>
                             {article.sentiment && (
                                 <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded border ${article.sentiment === 'POSITIVE' ? 'bg-accent-green/10 border-accent-green/20 text-accent-green' :
-                                        article.sentiment === 'NEGATIVE' ? 'bg-accent-red/10 border-accent-red/20 text-accent-red' :
-                                            'bg-gray-500/10 border-gray-500/20 text-gray-500'
+                                    article.sentiment === 'NEGATIVE' ? 'bg-accent-red/10 border-accent-red/20 text-accent-red' :
+                                        'bg-gray-500/10 border-gray-500/20 text-gray-500'
                                     }`}>
                                     Piyasa Yönü: {article.sentiment === 'POSITIVE' ? 'POZİTİF 🚀' : article.sentiment === 'NEGATIVE' ? 'NEGATİF 📉' : 'NÖTR 😐'}
                                 </span>
@@ -148,7 +148,7 @@ export default async function NewsDetailPage({ params, searchParams }: Props) {
                             components={{
                                 h1: ({ node, ...props }) => <h2 className="text-2xl font-bold text-white mt-10 mb-6 flex items-center gap-3 after:content-[''] after:flex-1 after:h-px after:bg-white/10" {...props} />,
                                 h2: ({ node, ...props }) => <h3 className="text-xl font-bold text-gray-100 mt-8 mb-4 border-l-4 border-accent-green pl-4" {...props} />,
-                                p: ({ node, ...props }) => <p className="mb-6 text-[17px] leading-8 text-gray-300/90 font-light" {...props} />,
+                                p: ({ node, ...props }) => <p className="mb-6 text-[17px] leading-8 text-gray-300/90 font-normal" {...props} />,
                                 ul: ({ node, ...props }) => <ul className="space-y-3 my-6 bg-white/5 p-6 rounded-2xl border border-white/5" {...props} />,
                                 li: ({ node, ...props }) => <li className="flex gap-3 items-start" {...props}><span className="mt-2 w-1 h-1 bg-gray-500 rounded-full shrink-0"></span><span>{props.children}</span></li>,
                                 strong: ({ node, ...props }) => <strong className="text-white font-bold decoration-accent-blue/30 underline decoration-2 underline-offset-2" {...props} />,

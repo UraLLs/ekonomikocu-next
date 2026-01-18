@@ -1,6 +1,6 @@
 import Header from "@/components/layout/Header";
-import Ticker from "@/components/layout/Ticker";
-import HeroSection from "@/components/features/HeroSection";
+
+
 import KapStories from "@/components/features/KapStories";
 import NewsSection from "@/components/features/NewsSection";
 import FinanceTools from "@/components/features/FinanceTools";
@@ -10,7 +10,14 @@ import Footer from "@/components/layout/Footer";
 import { createClient } from "@/utils/supabase/server";
 
 
+import { Suspense } from "react";
+import NewsSectionSkeleton from "@/components/features/skeletons/NewsSectionSkeleton";
+import DashboardLoader from "@/components/features/DashboardLoader";
+
 export const revalidate = 60; // Revalidate every minute
+
+
+import { getCurrencyRates } from "@/services/marketService";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -44,9 +51,11 @@ export default async function Home() {
     }));
   }
 
+  // 3. Fetch Currency Rates
+  const rates = await getCurrencyRates();
+
   return (
     <main className="min-h-screen bg-bg-primary text-text-primary">
-      <Ticker />
       <Header />
 
       <div className="max-w-[1400px] mx-auto p-4 md:p-6 lg:p-8">
@@ -54,18 +63,23 @@ export default async function Home() {
 
           {/* MAIN CONTENT AREA */}
           <div className="flex-1 flex flex-col gap-6 min-w-0">
-            {/* Premium Hero Section */}
-            <HeroSection />
+            {/* Google Finance Style Dashboard (Main Focus) */}
+            <Suspense fallback={<div className="h-64 bg-bg-surface animate-pulse rounded-2xl border border-border-subtle" />}>
+              <DashboardLoader />
+            </Suspense>
 
             {/* KAP Stories */}
             <KapStories />
 
-            <NewsSection />
+            <Suspense fallback={<NewsSectionSkeleton />}>
+              <NewsSection />
+            </Suspense>
+
             <FinanceTools />
           </div>
 
           {/* SIDEBAR AREA - Passing feedData here */}
-          <Sidebar comments={feedData} />
+          <Sidebar comments={feedData} rates={rates} />
 
         </div>
       </div>

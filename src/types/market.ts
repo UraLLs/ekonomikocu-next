@@ -1,5 +1,6 @@
 export interface MarketTicker {
     symbol: string;
+    displayName?: string;
     price: string;
     changePercent: string;
     up: boolean;

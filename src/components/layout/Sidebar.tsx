@@ -16,13 +16,14 @@ interface Comment {
 
 interface SidebarProps {
     comments?: Comment[];
+    rates?: Record<string, number>;
 }
 
-export default function Sidebar({ comments = [] }: SidebarProps) {
+export default function Sidebar({ comments = [], rates }: SidebarProps) {
     return (
         <aside className="flex flex-col gap-5 w-full lg:w-[340px] shrink-0 sticky top-24 h-fit">
             {/* UTILITY WIDGET */}
-            <CurrencyConverter />
+            <CurrencyConverter initialRates={rates} />
 
             {/* ÖNE ÇIKAN EĞİTİMLER */}
             <div className="bg-black/40 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden shadow-xl">
@@ -124,7 +125,33 @@ export default function Sidebar({ comments = [] }: SidebarProps) {
                     </div>
                     <div>
                         <h4 className="text-sm font-bold text-gray-200 mb-1 hover:text-accent-blue transition-colors cursor-pointer">Günlük Piyasa Özeti</h4>
-                        <p className="text-xs text-gray-500">@ekonomist_mehmet ile canlı analiz</p>
+                        <p className="text-xs text-gray-500 mb-4">@ekonomist_mehmet ile canlı analiz</p>
+
+                        {/* Upcoming Schedule */}
+                        <div className="space-y-3 pt-3 border-t border-white/5">
+                            <h5 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">YAKLAŞAN YAYINLAR</h5>
+                            <div className="flex items-center gap-3 group cursor-pointer">
+                                <div className="text-[13px] font-mono text-accent-green font-bold">14:00</div>
+                                <div>
+                                    <div className="text-[12px] font-bold text-gray-300 group-hover:text-accent-green">ABD Enflasyon Verisi</div>
+                                    <div className="text-[10px] text-gray-500">Özel Yayın</div>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3 group cursor-pointer">
+                                <div className="text-[13px] font-mono text-gray-500 font-bold">16:30</div>
+                                <div>
+                                    <div className="text-[12px] font-bold text-gray-300 group-hover:text-accent-green">ABD Borsaları Açılış</div>
+                                    <div className="text-[10px] text-gray-500">Wall Street</div>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3 group cursor-pointer">
+                                <div className="text-[13px] font-mono text-gray-500 font-bold">21:00</div>
+                                <div>
+                                    <div className="text-[12px] font-bold text-gray-300 group-hover:text-accent-green">Kripto Gecesi</div>
+                                    <div className="text-[10px] text-gray-500">Altcoin Analiz</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -54,12 +54,12 @@ function TradingViewChart({ symbol }: { symbol: string }) {
                 // @ts-ignore
                 new TradingView.widget({
                     "width": "100%",
-                    "height": "600",
+                    "height": "450",
                     "symbol": tvSymbol,
                     "interval": "D",
                     "timezone": "Etc/UTC",
                     "theme": "dark",
-                    "style": "1",
+                    "style": "3",
                     "locale": "tr",
                     "toolbar_bg": "#f1f3f6",
                     "enable_publishing": false,
@@ -68,7 +68,7 @@ function TradingViewChart({ symbol }: { symbol: string }) {
                     "save_image": false,
                     "container_id": widgetContainerId,
                     "backgroundColor": "rgba(0, 0, 0, 1)",
-                    "gridColor": "rgba(255, 255, 255, 0.05)",
+                    "gridColor": "rgba(255, 255, 255, 0.02)",
                     "studies": [
                         "RSI@tv-basicstudies"
                     ]
@@ -85,7 +85,7 @@ function TradingViewChart({ symbol }: { symbol: string }) {
     }, [symbol]);
 
     return (
-        <div className="w-full bg-black border border-white/5 rounded-2xl overflow-hidden shadow-2xl relative group" style={{ height: '600px' }}>
+        <div className="w-full bg-black border border-white/5 rounded-2xl overflow-hidden shadow-2xl relative group" style={{ height: '450px' }}>
             {/* Loading State or Placeholder if Script hasn't loaded */}
             <div className="absolute inset-0 flex items-center justify-center -z-10">
                 <div className="flex flex-col items-center gap-3">

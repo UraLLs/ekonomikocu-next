@@ -1,5 +1,7 @@
 import YahooFinance from 'yahoo-finance2';
 import { unstable_cache } from 'next/cache';
+import { NewsItem } from '@/services/newsService';
+import slugify from 'slugify';
 
 // Instantiate the class as required by v2.x+
 const yahooFinance = new YahooFinance({
@@ -21,7 +23,9 @@ function normalizeSymbol(symbol: string): string {
 
     // Currency
     if (s === 'USD') return 'TRY=X'; // USD to TRY
+    if (s === 'USD') return 'TRY=X'; // USD to TRY
     if (s === 'EUR') return 'EURTRY=X';
+    if (s === 'GBP') return 'GBPTRY=X';
     if (s === 'XU100' || s === 'BIST100') return 'XU100.IS';
     if (s === 'GOLD' || s === 'ONS') return 'GC=F'; // Gold Futures
 
@@ -46,7 +50,7 @@ const getQuoteCached = unstable_cache(
         }
     },
     ['market-quote-v2'], // Cache bust
-    { revalidate: 30 } // Reduced cache time
+    { revalidate: 5 } // Live data (almost)
 );
 
 
@@ -117,7 +121,7 @@ export async function getAssetDetail(symbol: string) {
                 const isUp = change >= 0;
 
                 return {
-                    name: 'DOLAR/TL',
+                    name: 'Dolar/TL',
                     price: price.toFixed(4),
                     change: change.toFixed(4),
                     changePercent: `%${Math.abs(changePercent).toFixed(2)}`,
@@ -177,22 +181,33 @@ export async function getBinanceTicker(): Promise<MarketTicker[]> {
         return data.map((item) => {
             const isUp = parseFloat(item.priceChangePercent) >= 0;
             let displayName = item.symbol;
+            let symbol = item.symbol; // TradingView symbol
             let price = parseFloat(item.lastPrice);
             let formattedPrice = price.toFixed(2);
 
             if (item.symbol === 'BTCUSDT') {
-                displayName = 'BTC/USD';
+                displayName = 'Bitcoin';
+                symbol = 'BTCUSDT';
                 formattedPrice = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             } else if (item.symbol === 'ETHUSDT') {
-                displayName = 'ETH/USD';
+                displayName = 'Ethereum';
+                symbol = 'ETHUSDT';
                 formattedPrice = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             } else if (item.symbol === 'USDTTRY') {
-                displayName = 'DOLAR/TL';
+                displayName = 'Dolar/TL';
+                symbol = 'USDTRY';
                 formattedPrice = price.toFixed(4);
+            } else if (item.symbol === 'BNBUSDT') {
+                displayName = 'BNB';
+                symbol = 'BNBUSDT';
+            } else if (item.symbol === 'SOLUSDT') {
+                displayName = 'Solana';
+                symbol = 'SOLUSDT';
             }
 
             return {
-                symbol: displayName,
+                symbol,
+                displayName,
                 price: formattedPrice,
                 changePercent: `%${Math.abs(parseFloat(item.priceChangePercent)).toFixed(2)}`,
                 up: isUp
@@ -201,8 +216,8 @@ export async function getBinanceTicker(): Promise<MarketTicker[]> {
     } catch (e) {
         // Updated fallbacks to be more realistic (Jan 2026/Present estimates)
         return [
-            { symbol: "BTC/USD", price: "97,500.00", changePercent: "%0.00", up: true },
-            { symbol: "DOLAR/TL", price: "35.5000", changePercent: "%0.00", up: true },
+            { symbol: "BTCUSDT", displayName: "Bitcoin", price: "97,500.00", changePercent: "%0.00", up: true },
+            { symbol: "USDTRY", displayName: "Dolar/TL", price: "35.5000", changePercent: "%0.00", up: true },
         ];
     }
 }
@@ -226,10 +241,11 @@ export async function getKapNews(): Promise<KapStory[]> {
         // Search news for major BIST companies to simulate KAP stream
         const symbols = ["THYAO.IS", "GARAN.IS", "ASELS.IS", "KCHOL.IS", "AKBNK.IS", "EREGL.IS", "SISE.IS", "BIMAS.IS"];
 
-        // Yahoo Finance v2 'search' returns news in 'news' array
-        // We'll search for 'BIST' generally to get broad news, or iterate symbols if needed.
-        // Searching for "BIST İstanbul" often yields better general market news
-        const result = await yahooFinance.search("Borsa İstanbul", { newsCount: 10 });
+        // "Ekonomi" seems to return better results than "Borsa Istanbul" or "Turkey Economy" currently
+        // Alternatively use "BIST" combined with specific companies if needed.
+        // For KAP stream simulation, let's use "Turkish Economy" or "Borsa Istanbul" 
+        // Although test showed "Borsa Istanbul" matches some reports.
+        const result = await yahooFinance.search("Ekonomi", { newsCount: 10 });
 
         const rawNews = result.news || [];
 
@@ -247,6 +263,7 @@ export async function getKapNews(): Promise<KapStory[]> {
             else if (item.title.includes("Akbank")) company = "AKBNK";
             else if (item.title.includes("Ereğli")) company = "EREGL";
             else if (item.title.includes("Borsa")) company = "BIST";
+            else company = "BIST";
 
             return {
                 id: item.uuid || Buffer.from(item.title).toString('base64').substring(0, 10),
@@ -266,13 +283,158 @@ export async function getKapNews(): Promise<KapStory[]> {
 
     } catch (e) {
         console.error("Error fetching KAP news:", e);
-        // Fallback Mock Data
-        return [
-            { id: "1", title: "Şirket Genel Bilgi Formu", company: "THYAO", time: "10:45", fullDate: new Date().toISOString(), viewed: false, isLive: true },
-            { id: "2", title: "Kar Payı Dağıtım İşlemleri", company: "EREGL", time: "10:30", fullDate: new Date().toISOString(), viewed: false, isLive: true },
-            { id: "3", title: "Özel Durum Açıklaması (Genel)", company: "ASELS", time: "09:15", fullDate: new Date().toISOString(), viewed: false, isLive: true },
-            { id: "4", title: "Pay Alım Satım Bildirimi", company: "SASA", time: "09:00", fullDate: new Date().toISOString(), viewed: false, isLive: true },
-            { id: "5", title: "Finansal Rapor", company: "GARAN", time: "08:55", fullDate: new Date().toISOString(), viewed: false, isLive: true },
-        ];
+        // NO MOCK DATA as requested
+        return [];
     }
+}
+
+// --- GOOGLE FINANCE STYLE METRICS ---
+
+export interface MarketSummary {
+    indices: MarketTicker[];
+    currencies: MarketTicker[];
+    commodities: MarketTicker[];
+    crypto: MarketTicker[];
+    movers: MarketTicker[];
+}
+
+export async function getMarketIndices(): Promise<MarketSummary> {
+    // Parallel fetch for speed
+    const [bist100, bist30, dollar, euro, gramGold, onsGold, brent, btc, eth] = await Promise.all([
+        getAssetDetail('XU100'),
+        getAssetDetail('XU030'),
+        getAssetDetail('USD'),
+        getAssetDetail('EUR'),
+        getAssetDetail('GRAM'),
+        getAssetDetail('ONS'),
+        getAssetDetail('BRENT'),
+        getAssetDetail('BTC'),
+        getAssetDetail('ETH')
+    ]);
+
+    // Helper to format as Ticker with proper TradingView symbol
+    const toTicker = (detail: any, tvSymbol: string, displayName?: string): MarketTicker => ({
+        symbol: tvSymbol,           // TradingView compatible symbol
+        displayName: displayName || detail.name, // Human readable name for UI
+        price: detail.price,
+        changePercent: detail.changePercent,
+        up: detail.isUp
+    });
+
+    return {
+        indices: [
+            toTicker(bist100, 'XU100', 'BIST 100'),
+            toTicker(bist30, 'XU030', 'BIST 30'),
+        ],
+        currencies: [
+            toTicker(dollar, 'USDTRY', 'Dolar/TL'),
+            toTicker(euro, 'EURTRY', 'Euro/TL'),
+        ],
+        commodities: [
+            toTicker(gramGold, 'GOLD', 'Gram Altın'),
+            toTicker(onsGold, 'GOLD', 'Ons Altın'),
+            toTicker(brent, 'BRENT', 'Brent Petrol'),
+        ],
+        crypto: [
+            toTicker(btc, 'BTCUSDT', 'Bitcoin'),
+            toTicker(eth, 'ETHUSDT', 'Ethereum'),
+        ],
+        movers: [] // Will fill separately
+    };
+}
+
+export async function getDailyMovers(): Promise<MarketTicker[]> {
+    // In a real app, this would query an API for "Top Gainers".
+    // Here we will simulate it by fetching a curated list of volatile/popular assets
+    // and sorting them by absolute change percentage.
+
+    const candidates = ['THYAO', 'ASELS', 'GARAN', 'AKBNK', 'SISE', 'EREGL', 'KCHOL', 'SASA', 'HEKTS', 'ASTOR'];
+
+    // Fetch all in parallel
+    const details = await Promise.all(candidates.map(s => getAssetDetail(s)));
+
+    const movers = details.map((d, i) => ({
+        symbol: candidates[i],       // BIST symbol (TradingView: BIST:THYAO)
+        displayName: candidates[i],  // Same for movers
+        price: d?.price || '0.00',
+        changePercent: d?.changePercent || '%0.00',
+        up: d?.isUp || false,
+        rawChange: Math.abs(parseFloat((d?.changePercent || '0').replace('%', '')))
+    }));
+
+    // Sort by magnitude of movement (High volatility first)
+    return movers
+        .sort((a, b) => b.rawChange - a.rawChange)
+        .slice(0, 5) // Top 5 movers
+        .map(({ rawChange, ...rest }) => rest);
+}
+
+import { getEconomyNews } from './newsService';
+
+export async function getMarketNews(query?: string): Promise<NewsItem[]> {
+    return await getEconomyNews(query);
+}
+
+export async function getCurrencyRates(): Promise<Record<string, number>> {
+    // Default fallback rates
+    const rates: Record<string, number> = {
+        'TRY': 1,
+        'USD': 35.0,
+        'EUR': 38.0,
+        'GBP': 44.0,
+        'BTC': 2450000,
+        'ETH': 85000,
+    };
+
+    try {
+        const [usd, eur, gbp, btc, eth] = await Promise.all([
+            getAssetDetail('USD'),
+            getAssetDetail('EUR'),
+            getAssetDetail('GBP'),
+            getAssetDetail('BTC'),
+            getAssetDetail('ETH')
+        ]);
+
+        // Helper to parse localized or fixed string to number
+        const parsePrice = (detail: any) => {
+            if (!detail || !detail.price) return null;
+            // Remove thousand separators (comma or dot dep on locale, but getAssetDetail outputs standard format usually)
+            // getAssetDetail for USD returns toFixed(4) -> "35.1234" (dot decimal)
+            // Crypto may return localized? BTC -> "97,500.00" (comma usually if locale is tr-TR? No, check getAssetDetail)
+
+            // Checking getAssetDetail:
+            // quote.regularMarketPrice.toLocaleString('en-US') -> "97,500.00"
+            // So remove comma, parse float.
+            const clean = detail.price.replace(/,/g, '');
+            return parseFloat(clean);
+        };
+
+        const usdRate = parsePrice(usd);
+        const eurRate = parsePrice(eur);
+        const gbpRate = parsePrice(gbp);
+        const btcRate = parsePrice(btc); // This is usually in USD. We need TRY?
+        // Wait, BTC normalized is BTC-USD. So quote is in USD.
+        // But UI expectation: "BTC: 2,450,000" (TRY).
+        // If fetch returns USD price, we need to multiply by USD rate.
+
+        // Let's check crypto normalization:
+        // BTC -> BTC-USD (Line 18).
+        // Return price is in USD.
+
+        if (usdRate) rates['USD'] = usdRate;
+        if (eurRate) rates['EUR'] = eurRate;
+        if (gbpRate) rates['GBP'] = gbpRate;
+
+        // Calculate BTC/ETH in TRY
+        const btcUsd = parsePrice(btc);
+        const ethUsd = parsePrice(eth);
+
+        if (btcUsd && usdRate) rates['BTC'] = btcUsd * usdRate;
+        if (ethUsd && usdRate) rates['ETH'] = ethUsd * usdRate;
+
+    } catch (e) {
+        console.error("Failed to fetch currency rates", e);
+    }
+
+    return rates;
 }

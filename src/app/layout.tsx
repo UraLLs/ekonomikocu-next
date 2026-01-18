@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   description: "Borsa, ekonomi, kripto para ve altın piyasalarını takip edin.",
 };
 
+import { Providers } from "@/components/providers/Providers";
+import Ticker from "@/components/layout/Ticker";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -20,7 +23,10 @@ export default function RootLayout({
   return (
     <html lang="tr" suppressHydrationWarning>
       <body className={`${inter.variable} antialiased`} suppressHydrationWarning>
-        {children}
+        <Providers>
+          <Ticker />
+          {children}
+        </Providers>
       </body>
     </html>
   );

@@ -1,12 +1,13 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import AssetHeader from "@/components/asset-detail/AssetHeader";
-import TradingViewChart from "@/components/asset-detail/TradingViewChart";
+import AssetMainSection from "@/components/asset-detail/AssetMainSection";
 import WarRoom from "@/components/asset-detail/WarRoom";
-import ActionPanel from "@/components/asset-detail/ActionPanel";
-import NewsWidget from "@/components/asset-detail/NewsWidget";
+import KeyStatistics from "@/components/asset-detail/KeyStatistics";
 import { Metadata } from "next";
 import { createClient } from "@/utils/supabase/server";
+import { getProfessionalNews } from "@/services/newsApiService";
+import { getAssetDetail } from "@/services/marketService";
 
 export async function generateMetadata({ params }: { params: Promise<{ symbol: string }> }): Promise<Metadata> {
     const { symbol } = await params;
@@ -25,63 +26,33 @@ export async function generateMetadata({ params }: { params: Promise<{ symbol: s
     };
 }
 
-import { getEconomyNews } from "@/services/newsService";
-
 export default async function AssetPage({ params }: { params: Promise<{ symbol: string }> }) {
     const { symbol } = await params;
     const supabase = await createClient();
 
-    // 1. Get Current User (Used implicitly by client components via auth but good to check session if needed)
-    // const { data: { user } } = await supabase.auth.getUser();
-
-    // 2. Fetch Data in Parallel
-    // Map symbol to likely news keywords
-    const getNewsQuery = (s: string) => {
-        const map: Record<string, string> = {
-            'BTC': 'Bitcoin',
-            'ETH': 'Ethereum',
-            'XRP': 'Ripple',
-            'SOL': 'Solana',
-            'AVAX': 'Avalanche',
-            'GARAN': 'Garanti',
-            'THYAO': 'Türk Hava Yolları',
-            'ASELS': 'Aselsan',
-            'KCHOL': 'Koç Holding',
-            'AKBNK': 'Akbank',
-            'SISE': 'Şişecam',
-            'BIST100': 'Borsa İstanbul',
-            'USD': 'Dolar',
-            'EUR': 'Euro',
-            'GOLD': 'Altın'
-        };
-        // Normalize: USDTRY -> USD lookup
-        if (s.includes('USD')) return 'Dolar';
-        if (s.includes('EUR')) return 'Euro';
-
-        return map[s.toUpperCase()] || s;
-    };
-
-    const newsQuery = getNewsQuery(symbol);
-
-    const [news, { data: comments }] = await Promise.all([
-        getEconomyNews(newsQuery),
+    // 0. Fetch Market Data & News (Parallel)
+    // We use Promise.all for performance
+    const [newsData, commentsData] = await Promise.all([
+        getProfessionalNews(symbol),
         supabase
             .from('comments')
             .select('*')
             .eq('symbol', symbol)
             .order('created_at', { ascending: false })
-            .limit(20) // Limit initial load
+            .limit(20)
     ]);
 
-    // 3. Get Profiles for those comments
-    // Define a type for the enriched comment
+    // 1. Comments Processing (Existing Logic)
+    const { data: comments } = commentsData;
+
+    // 2. Get Profiles for those comments
     type EnrichedComment = {
         id: string;
         content: string;
         created_at: string;
         user_id: string;
         symbol: string | null;
-        profiles?: { id: string; username: string };
+        profiles?: { id: string; username: string; avatar_url?: string; level?: number };
     };
 
     let commentsWithProfiles: EnrichedComment[] = [];
@@ -89,12 +60,18 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
         const userIds = Array.from(new Set(comments.map(c => c.user_id)));
         const { data: profiles } = await supabase
             .from('profiles')
-            .select('id, username')
+            .select('*') // Select all to get avatar_url and level
             .in('id', userIds);
 
-        type ProfileMap = Record<string, { id: string; username: string }>;
+        interface Profile {
+            id: string;
+            username: string;
+            avatar_url?: string;
+            level?: number;
+        }
+        type ProfileMap = Record<string, Profile>;
 
-        const profileMap = (profiles || []).reduce<ProfileMap>((acc, profile) => {
+        const profileMap = ((profiles as Profile[]) || []).reduce<ProfileMap>((acc, profile) => {
             acc[profile.id] = profile;
             return acc;
         }, {});
@@ -104,7 +81,6 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
             profiles: profileMap[c.user_id]
         }));
     } else {
-        // Fallback for demo if no real comments exist yet (User asked for real data, but if table is empty visually it looks broken, so keeping empty array is fine)
         commentsWithProfiles = [];
     }
 
@@ -112,23 +88,27 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
         <main className="min-h-screen bg-bg-primary text-text-primary">
             <Header />
 
-            <div className="max-w-[1600px] mx-auto p-4 md:p-6 lg:p-8 pb-32">
-                {/* Asset Header */}
+            <div className="max-w-6xl mx-auto p-4 md:p-6 lg:p-8 pb-32">
+                {/* 1. Header (Full Width) */}
                 <AssetHeader symbol={symbol} />
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                    {/* LEFT COLUMN (Chart & Analysis) - 70% */}
-                    <div className="lg:col-span-8 space-y-6">
-                        <TradingViewChart symbol={symbol} />
+                {/* 2. Main Content Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
 
-                        {/* War Room takes center stage as the main social/analysis hub */}
-                        <WarRoom symbol={symbol} initialComments={commentsWithProfiles} />
+                    {/* LEFT COLUMN (Tabs & Content) - 2/3 */}
+                    <div className="lg:col-span-2">
+                        <AssetMainSection symbol={symbol} news={newsData} />
                     </div>
 
-                    {/* RIGHT COLUMN (Interaction) - 30% */}
-                    <div className="lg:col-span-4 space-y-6">
-                        <ActionPanel symbol={symbol} />
-                        <NewsWidget news={news} />
+                    {/* RIGHT COLUMN (Stats & Community) - 1/3 */}
+                    <div className="lg:col-span-1 flex flex-col gap-6">
+                        {/* Key Statistics Table */}
+                        <KeyStatistics symbol={symbol} />
+
+                        {/* War Room (Chat) */}
+                        <div className="h-[600px]">
+                            <WarRoom symbol={symbol} initialComments={commentsWithProfiles} />
+                        </div>
                     </div>
                 </div>
 

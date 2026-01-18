@@ -2,31 +2,38 @@
 
 import { useState, useEffect } from 'react';
 
-const MOCK_RATES: Record<string, number> = {
+const DEFAULT_RATES: Record<string, number> = {
     'TRY': 1,
-    'USD': 35.0, // Mock rate
+    'USD': 35.0, // Fallback
     'EUR': 38.0,
     'GBP': 44.0,
     'BTC': 2450000,
     'ETH': 85000,
 };
 
-export default function CurrencyConverter() {
+export default function CurrencyConverter({ initialRates }: { initialRates?: Record<string, number> }) {
+    const rates = initialRates || DEFAULT_RATES;
+
+    // Ensure TRY is 1 if not present (though it should be handled by logic, simpler to have it)
+    if (rates['TRY'] === undefined) rates['TRY'] = 1;
+
     const [amount, setAmount] = useState<number>(100);
     const [from, setFrom] = useState<string>('USD');
     const [to, setTo] = useState<string>('TRY');
     const [result, setResult] = useState<number>(0);
 
     const convert = () => {
-        const fromRate = MOCK_RATES[from];
-        const toRate = MOCK_RATES[to];
+        const fromRate = rates[from];
+        const toRate = rates[to];
         if (fromRate && toRate) {
-            // Convert 'From' to Base (TRY) then to 'To'
-            // Base is TRY (Value 1)
-            // If From is USD (35), Amount 100
-            // Value in TRY = 100 * 35 = 3500
-            // Convert to EUR (38)
-            // 3500 / 38 = 92.1
+            // Logic:
+            // rates[Currency] = value in TRY.
+            // 1 USD = 35 TRY.
+            // 1 TRY = 1 TRY.
+
+            // Amount * FromRate = Value in TRY.
+            // Value in TRY / ToRate = Value in Target.
+
             const valueInTry = amount * fromRate;
             const finalValue = valueInTry / toRate;
             setResult(finalValue);
@@ -35,7 +42,7 @@ export default function CurrencyConverter() {
 
     useEffect(() => {
         convert();
-    }, [amount, from, to]);
+    }, [amount, from, to, rates]);
 
     return (
         <div className="bg-bg-surface border border-border-subtle rounded-xl p-4 shadow-sm">
@@ -59,7 +66,7 @@ export default function CurrencyConverter() {
                         onChange={(e) => setFrom(e.target.value)}
                         className="bg-bg-elevated border border-border-subtle rounded-lg px-2 py-2 text-text-primary text-xs focus:outline-none cursor-pointer"
                     >
-                        {Object.keys(MOCK_RATES).map(c => <option key={c} value={c}>{c}</option>)}
+                        {Object.keys(rates).map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
 
                     <button
@@ -74,7 +81,7 @@ export default function CurrencyConverter() {
                         onChange={(e) => setTo(e.target.value)}
                         className="bg-bg-elevated border border-border-subtle rounded-lg px-2 py-2 text-text-primary text-xs focus:outline-none cursor-pointer"
                     >
-                        {Object.keys(MOCK_RATES).map(c => <option key={c} value={c}>{c}</option>)}
+                        {Object.keys(rates).map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                 </div>
 

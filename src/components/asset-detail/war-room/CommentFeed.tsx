@@ -27,6 +27,25 @@ interface CommentFeedProps {
     initialComments: Comment[];
 }
 
+const getAvatarGradient = (username: string) => {
+    const gradients = [
+        "from-red-500 to-orange-500",
+        "from-amber-500 to-yellow-500",
+        "from-lime-500 to-green-500",
+        "from-emerald-500 to-teal-500",
+        "from-cyan-500 to-sky-500",
+        "from-blue-500 to-indigo-500",
+        "from-violet-500 to-purple-500",
+        "from-fuchsia-500 to-pink-500",
+        "from-rose-500 to-red-500"
+    ];
+    let hash = 0;
+    for (let i = 0; i < username.length; i++) {
+        hash = username.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return gradients[Math.abs(hash) % gradients.length];
+};
+
 export default function CommentFeed({ symbol, initialComments }: CommentFeedProps) {
     const supabase = createClient();
     const [comments, setComments] = useState<Comment[]>(initialComments);
@@ -127,47 +146,34 @@ export default function CommentFeed({ symbol, initialComments }: CommentFeedProp
             </div>
 
             {/* Content - STRICT SCROLLING */}
-            <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-white/10">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-white/10">
                 {comments.map((comment) => (
                     <div key={comment.id} className="group">
-                        <div className="flex gap-4">
+                        <div className="flex gap-3">
                             {/* Avatar */}
-                            <div className="flex-shrink-0">
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center text-sm font-bold text-gray-300 border border-white/10 shadow-lg">
+                            <div className="flex-shrink-0 pt-1">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white border border-white/10 shadow-lg bg-gradient-to-br ${getAvatarGradient(comment.profiles?.username || "?")}`}>
                                     {(comment.profiles?.username || "?")[0].toUpperCase()}
                                 </div>
                             </div>
 
                             {/* Body */}
-                            <div className="flex-1">
-                                <div className="flex items-center justify-between mb-1">
-                                    <div className="flex items-center gap-2">
-                                        <span className="font-bold text-gray-200 text-sm group-hover:text-accent-blue transition-colors cursor-pointer">
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-baseline justify-between mb-1">
+                                    <div className="flex items-center gap-2 truncate">
+                                        <span className="font-bold text-gray-200 text-sm group-hover:text-accent-blue transition-colors cursor-pointer truncate">
                                             @{comment.profiles?.username}
                                         </span>
-                                        {/* Badge logic */}
                                         <UserBadge level={comment.profiles?.level || 1} />
                                     </div>
-                                    <span className="text-xs text-gray-600 font-mono">
+                                    <span className="text-[10px] text-gray-600 font-mono flex-shrink-0 ml-2">
                                         {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true, locale: tr })}
                                     </span>
                                 </div>
 
-                                <p className="text-sm text-gray-300 leading-relaxed bg-white/5 p-4 rounded-xl rounded-tl-none border border-white/5 hover:border-white/10 transition-colors">
+                                <p className="text-sm text-gray-300 leading-relaxed bg-white/5 p-3 rounded-xl rounded-tl-none border border-white/5 hover:border-white/10 transition-colors break-words">
                                     {comment.content}
                                 </p>
-
-                                {/* Actions */}
-                                <div className="flex items-center gap-4 mt-2 pl-2">
-                                    <button className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-accent-green transition-colors">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" /></svg>
-                                        {comment.likes || 0}
-                                    </button>
-                                    <button className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-accent-blue transition-colors">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-                                        {comment.replies || 0} Yanıt
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -175,23 +181,23 @@ export default function CommentFeed({ symbol, initialComments }: CommentFeedProp
             </div>
 
             {/* Inline Input Area */}
-            <div className="p-4 border-t border-white/5 bg-white/5 backdrop-blur-md">
-                <div className="flex gap-3">
-                    <div className="flex-1 relative">
-                        <textarea
-                            value={newComment}
-                            onChange={(e) => setNewComment(e.target.value)}
-                            placeholder="Bu hisse hakkında düşüncelerin nedir?"
-                            className="w-full bg-black/50 text-gray-200 text-sm rounded-xl border border-white/10 p-3 pr-10 focus:outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/50 transition-all resize-none h-[50px] scrollbar-hide"
-                        />
+            <div className="p-3 border-t border-white/5 bg-white/5 backdrop-blur-md">
+                <div className="flex flex-col gap-2">
+                    <textarea
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        placeholder="Yorum yaz..."
+                        className="w-full bg-black/50 text-gray-200 text-sm rounded-xl border border-white/10 p-3 focus:outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/50 transition-all resize-none h-[60px] scrollbar-hide placeholder:text-gray-600"
+                    />
+                    <div className="flex justify-end">
+                        <button
+                            onClick={handlePostComment}
+                            disabled={!newComment.trim()}
+                            className="px-4 py-2 rounded-lg bg-accent-blue text-white text-xs font-bold shadow-lg shadow-accent-blue/20 hover:bg-accent-blue-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        >
+                            Gönder
+                        </button>
                     </div>
-                    <button
-                        onClick={handlePostComment}
-                        disabled={!newComment.trim()}
-                        className="h-[50px] px-6 rounded-xl bg-accent-blue text-white text-sm font-bold shadow-lg shadow-accent-blue/20 hover:bg-accent-blue-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center"
-                    >
-                        Gönder
-                    </button>
                 </div>
             </div>
         </div>

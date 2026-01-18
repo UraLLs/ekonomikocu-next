@@ -9,6 +9,68 @@ const parser = new Parser({
     }
 });
 
+// Fetch actual article content from source URL
+async function fetchArticleContent(url: string): Promise<string> {
+    try {
+        console.log(`Fetching article content from: ${url}`);
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+        });
+
+        if (!response.ok) {
+            console.warn(`Failed to fetch article: ${response.status}`);
+            return '';
+        }
+
+        const html = await response.text();
+
+        // Extract text content from article body
+        // NTV uses article-body class or similar patterns
+        let content = '';
+
+        // Try to find article content using regex patterns
+        // Pattern 1: Look for article-body or news-content divs
+        const articleMatch = html.match(/<article[^>]*>([\s\S]*?)<\/article>/i) ||
+            html.match(/<div[^>]*class="[^"]*article-body[^"]*"[^>]*>([\s\S]*?)<\/div>/i) ||
+            html.match(/<div[^>]*class="[^"]*news-content[^"]*"[^>]*>([\s\S]*?)<\/div>/i) ||
+            html.match(/<div[^>]*class="[^"]*content-text[^"]*"[^>]*>([\s\S]*?)<\/div>/i);
+
+        if (articleMatch) {
+            content = articleMatch[1];
+        } else {
+            // Fallback: get all paragraph text
+            const paragraphs = html.match(/<p[^>]*>([\s\S]*?)<\/p>/gi) || [];
+            content = paragraphs.slice(0, 10).join(' '); // First 10 paragraphs
+        }
+
+        // Clean HTML tags and normalize whitespace
+        content = content
+            .replace(/<script[\s\S]*?<\/script>/gi, '')
+            .replace(/<style[\s\S]*?<\/style>/gi, '')
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&amp;/g, '&')
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'")
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        // Limit to reasonable length for AI processing
+        if (content.length > 3000) {
+            content = content.substring(0, 3000) + '...';
+        }
+
+        console.log(`Extracted ${content.length} chars of content`);
+        return content;
+
+    } catch (error) {
+        console.error('Error fetching article content:', error);
+        return '';
+    }
+}
+
 export interface NewsItem {
     id?: string;
     title: string;
@@ -21,6 +83,11 @@ export interface NewsItem {
     image?: string;
     source: string;
     sentiment?: 'POSITIVE' | 'NEGATIVE' | 'NEUTRAL';
+    relatedTicker?: {
+        symbol: string;
+        changePercent: string;
+        isUp: boolean;
+    };
 }
 
 // Helper to create URL-friendly slugs
@@ -165,14 +232,23 @@ export async function getNewsDetail(slug: string, originalLink?: string, title?:
     }
 
     // 3. Process with AI
-    console.log(`Analyzing news using Gemini 2.0 Flash: ${title}`);
+    console.log(`Analyzing news using Gemini: ${title}`);
 
     // Check API Key existence before even trying (server-side check)
     if (!process.env.GOOGLE_API_KEY) {
         console.error("Serverside: GOOGLE_API_KEY is missing in process.env");
     }
 
-    const analysis = await analyzeNewsWithGemini(title, title + " " + (pubDate || ""));
+    // Fetch actual content from source URL for accurate AI analysis
+    let articleContent = '';
+    if (originalLink) {
+        articleContent = await fetchArticleContent(originalLink);
+    }
+
+    // Use fetched content if available, otherwise fallback to title only
+    const contentForAI = articleContent || `Haber başlığı: ${title}. Yayın tarihi: ${pubDate || 'belirtilmemiş'}.`;
+
+    const analysis = await analyzeNewsWithGemini(title, contentForAI);
 
     // 4. Save to DB (Upsert to fix previous error record if it exists)
     // Use Service Role Key if available to bypass RLS, otherwise fallback to standard client

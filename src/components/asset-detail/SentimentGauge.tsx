@@ -102,7 +102,7 @@ export default function SentimentGauge({ symbol }: { symbol?: string }) {
                     </div>
                 </div>
 
-                <div className="text-center mt-2">
+                <div className="text-center mt-6">
                     <div className="text-4xl font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] mb-1 tracking-tight font-mono">
                         {score}
                     </div>

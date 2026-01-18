@@ -4,7 +4,7 @@ import { formatDistanceToNow } from "date-fns";
 import { tr } from "date-fns/locale";
 
 export default async function NewsSection() {
-    const news = await getEconomyNews();
+    const news = await getEconomyNews('general');
     const mainNews = news[0];
     const sideNews = news.slice(1, 3);
     const listNews = news.slice(3, 9);
@@ -34,7 +34,7 @@ export default async function NewsSection() {
             <div className="grid grid-cols-1 md:grid-cols-[1.5fr_1fr] gap-4">
                 {/* Main Card */}
                 {mainNews && (
-                    <a href={mainNews.link} target="_blank" rel="noopener noreferrer" className="md:row-span-2 bg-bg-surface border border-border-subtle rounded-xl overflow-hidden cursor-pointer hover:border-border-default hover:-translate-y-0.5 hover:shadow-lg transition-all group block">
+                    <a href={`/haber/${mainNews.slug}?url=${encodeURIComponent(mainNews.link)}&title=${encodeURIComponent(mainNews.title)}&date=${encodeURIComponent(mainNews.pubDate)}&image=${encodeURIComponent(mainNews.image || "")}`} className="md:row-span-2 bg-bg-surface border border-border-subtle rounded-xl overflow-hidden cursor-pointer hover:border-border-default hover:-translate-y-0.5 hover:shadow-lg transition-all group block">
                         <div className="w-full aspect-video md:aspect-[16/10] relative overflow-hidden">
                             <img src={mainNews.image || "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&h=500&fit=crop"} alt={mainNews.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         </div>
@@ -57,7 +57,7 @@ export default async function NewsSection() {
 
                 {/* Side Cards */}
                 {sideNews.map((item, i) => (
-                    <a key={i} href={item.link} target="_blank" rel="noopener noreferrer" className="bg-bg-surface border border-border-subtle rounded-xl overflow-hidden cursor-pointer hover:border-border-default hover:-translate-y-0.5 hover:shadow-md transition-all group flex flex-col sm:flex-row md:flex-col block">
+                    <a key={i} href={`/haber/${item.slug}?url=${encodeURIComponent(item.link)}&title=${encodeURIComponent(item.title)}&date=${encodeURIComponent(item.pubDate)}&image=${encodeURIComponent(item.image || "")}`} className="bg-bg-surface border border-border-subtle rounded-xl overflow-hidden cursor-pointer hover:border-border-default hover:-translate-y-0.5 hover:shadow-md transition-all group flex flex-col sm:flex-row md:flex-col block">
                         <div className="w-full sm:w-1/3 md:w-full aspect-video relative overflow-hidden">
                             <img src={item.image || `https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=225&fit=crop`} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         </div>
@@ -87,7 +87,7 @@ export default async function NewsSection() {
             {/* SMALL NEWS GRID */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {listNews.map((item, i) => (
-                    <a key={i} href={item.link} target="_blank" rel="noopener noreferrer" className="bg-bg-surface border border-border-subtle rounded-lg p-3.5 flex gap-3 cursor-pointer hover:border-border-default hover:bg-bg-surface-hover transition-all group">
+                    <a key={i} href={`/haber/${item.slug}?url=${encodeURIComponent(item.link)}&title=${encodeURIComponent(item.title)}&date=${encodeURIComponent(item.pubDate)}&image=${encodeURIComponent(item.image || "")}`} className="bg-bg-surface border border-border-subtle rounded-lg p-3.5 flex gap-3 cursor-pointer hover:border-border-default hover:bg-bg-surface-hover transition-all group">
                         <img src={item.image || "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=160&h=120&fit=crop"} alt={item.title} className="w-20 h-15 rounded-md object-cover bg-bg-elevated shrink-0" />
                         <div className="min-w-0 flex-1">
                             <h4 className="text-[13px] font-semibold text-text-primary leading-snug line-clamp-2 mb-1.5 group-hover:text-accent-green">{item.title}</h4>

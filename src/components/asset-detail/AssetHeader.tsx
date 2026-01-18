@@ -3,6 +3,20 @@ import { getAssetDetail } from "@/services/marketService";
 export default async function AssetHeader({ symbol }: { symbol: string }) {
     const data = await getAssetDetail(symbol);
 
+    const isCrypto = ['BTC', 'ETH', 'SOL', 'AVAX', 'XRP', 'DOGE', 'USDT'].includes(symbol.toUpperCase()) || symbol.toUpperCase().endsWith('USDT');
+    const isForex = ['USD', 'EUR', 'GOLD', 'ALTIN', 'GA'].includes(symbol.toUpperCase());
+
+    let marketType = 'BIST';
+    let marketColorClass = 'text-accent-green bg-accent-green/10 border-accent-green/20';
+
+    if (isCrypto) {
+        marketType = 'CRYPTO';
+        marketColorClass = 'text-accent-orange bg-accent-orange/10 border-accent-orange/20';
+    } else if (isForex) {
+        marketType = 'FOREX';
+        marketColorClass = 'text-accent-yellow bg-accent-yellow/10 border-accent-yellow/20';
+    }
+
     return (
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-black/40 backdrop-blur-xl border border-white/5 rounded-2xl shadow-2xl mb-6 relative overflow-hidden group">
             {/* Ambient Background Glow */}
@@ -15,8 +29,8 @@ export default async function AssetHeader({ symbol }: { symbol: string }) {
                 <div>
                     <h1 className="text-4xl font-black text-white tracking-tighter drop-shadow-md flex items-center gap-3">
                         {symbol.toUpperCase()}
-                        <span className="text-xs font-mono font-normal text-accent-green bg-accent-green/10 px-2 py-0.5 rounded border border-accent-green/20 uppercase tracking-widest">
-                            BIST
+                        <span className={`text-xs font-mono font-normal px-2 py-0.5 rounded border uppercase tracking-widest ${marketColorClass}`}>
+                            {marketType}
                         </span>
                     </h1>
                     <span className="text-sm text-gray-400 font-medium tracking-wide uppercase">{data.name}</span>

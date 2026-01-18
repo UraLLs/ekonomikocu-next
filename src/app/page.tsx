@@ -31,7 +31,9 @@ export default async function Home() {
       .select('id, username, avatar_url')
       .in('id', userIds);
 
-    const profileMap = (profiles || []).reduce((acc: any, profile: any) => {
+    type ProfileMap = Record<string, { id: string; username: string; avatar_url: string }>;
+
+    const profileMap = (profiles || []).reduce<ProfileMap>((acc, profile) => {
       acc[profile.id] = profile;
       return acc;
     }, {});

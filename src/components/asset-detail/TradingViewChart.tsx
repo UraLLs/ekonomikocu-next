@@ -9,81 +9,91 @@ function TradingViewChart({ symbol }: { symbol: string }) {
         if (!container.current) return;
 
         // Determine exchange based on symbol
-        // If symbol is like BTC, ETH, SOL or ends with USDT -> BINANCE
-        // Otherwise just use the symbol (works better with Symbol Overview widget for BIST)
         const upperSymbol = symbol.toUpperCase();
         let tvSymbol = upperSymbol;
 
-        const cryptoCommon = ['BTC', 'ETH', 'SOL', 'AVAX', 'XRP', 'DOGE', 'USDT'];
+        const cryptoCommon = ['BTC', 'ETH', 'SOL', 'AVAX', 'XRP', 'DOGE', 'USDT', 'SHIB', 'PEPE', 'ADA', 'DOT'];
+
+        // 1. CRYPTO (Binance)
         if (cryptoCommon.includes(upperSymbol) || upperSymbol.endsWith('USDT')) {
-            tvSymbol = `BINANCE:${upperSymbol}USDT`;
-            // If it's already full pair like BTCUSDT, keep it, otherwise append USDT
             if (upperSymbol.endsWith('USDT')) {
                 tvSymbol = `BINANCE:${upperSymbol}`;
+            } else {
+                tvSymbol = `BINANCE:${upperSymbol}USDT`;
             }
         }
+        // 2. FOREX / COMMODITIES
+        else if (upperSymbol === 'USD' || upperSymbol === 'DOLAR') {
+            tvSymbol = 'FX:USDTRY';
+        }
+        else if (upperSymbol === 'EUR' || upperSymbol === 'EURO') {
+            tvSymbol = 'FX:EURTRY';
+        }
+        else if (upperSymbol === 'GOLD' || upperSymbol === 'ALTIN' || upperSymbol === 'GA') {
+            tvSymbol = 'FX:XAUUSD';
+        }
+        else if (upperSymbol === 'BIST100' || upperSymbol === 'XU100') {
+            tvSymbol = 'BIST:XU100';
+        }
+        // 3. BIST STOCKS (Default)
+        else {
+            tvSymbol = upperSymbol; // Auto-resolve (removes BIST: prefix to allow better matching)
+        }
 
-        // Clear previous content
+        const widgetContainerId = `tradingview_${Math.random().toString(36).substring(7)}`;
+        container.current.id = widgetContainerId;
         container.current.innerHTML = "";
 
         const script = document.createElement("script");
-        script.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js"; // USING SYMBOL OVERVIEW (Allows BIST)
+        script.src = "https://s3.tradingview.com/tv.js";
         script.type = "text/javascript";
         script.async = true;
-        script.innerHTML = JSON.stringify({
-            "symbols": [
-                [
-                    symbol.toUpperCase(),
-                    tvSymbol
-                ]
-            ],
-            "chartOnly": false,
-            "width": "100%",
-            "height": "100%",
-            "locale": "tr",
-            "colorTheme": "dark",
-            "autosize": true,
-            "showVolume": true,
-            "showMA": false,
-            "hideDateRanges": false,
-            "hideMarketStatus": false,
-            "hideSymbolLogo": false,
-            "scalePosition": "right",
-            "scaleMode": "Normal",
-            "fontFamily": "-apple-system, BlinkMacSystemFont, Trebuchet MS, Roboto, Ubuntu, sans-serif",
-            "fontSize": "10",
-            "noTimeScale": false,
-            "valuesTracking": "1",
-            "changeMode": "price-and-percent",
-            "chartType": "candlesticks", // MUM GRAFIK (CANDLES)
-            "maLineColor": "#2962FF",
-            "maLineWidth": 1,
-            "maLength": 9,
-            "upColor": "#22ab94",
-            "downColor": "#f7525f",
-            "borderUpColor": "#22ab94",
-            "borderDownColor": "#f7525f",
-            "wickUpColor": "#22ab94",
-            "wickDownColor": "#f7525f",
-            "dateRanges": [
-                "1d|1",
-                "1m|30",
-                "3m|60",
-                "12m|1D",
-                "60m|1W",
-                "all|1M"
-            ],
-            "dateFormat": "dd MMM",
-            "backgroundColor": "rgba(13, 13, 13, 1)"
-        });
+        script.onload = () => {
+            // @ts-ignore
+            if (typeof TradingView !== 'undefined') {
+                // @ts-ignore
+                new TradingView.widget({
+                    "width": "100%",
+                    "height": "600",
+                    "symbol": tvSymbol,
+                    "interval": "D",
+                    "timezone": "Etc/UTC",
+                    "theme": "dark",
+                    "style": "1",
+                    "locale": "tr",
+                    "toolbar_bg": "#f1f3f6",
+                    "enable_publishing": false,
+                    "hide_top_toolbar": false,
+                    "hide_legend": false,
+                    "save_image": false,
+                    "container_id": widgetContainerId,
+                    "backgroundColor": "rgba(0, 0, 0, 1)",
+                    "gridColor": "rgba(255, 255, 255, 0.05)",
+                    "studies": [
+                        "RSI@tv-basicstudies"
+                    ]
+                });
+            }
+        };
         container.current.appendChild(script);
+
+        return () => {
+            if (container.current) {
+                container.current.innerHTML = "";
+            }
+        };
     }, [symbol]);
 
     return (
-        <div className="h-[500px] w-full bg-bg-surface border border-border-subtle rounded-lg overflow-hidden shadow-lg relative" ref={container}>
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-                <span className="text-text-muted text-sm animate-pulse">Grafik Yükleniyor...</span>
+        <div className="w-full bg-black border border-white/5 rounded-2xl overflow-hidden shadow-2xl relative group" style={{ height: '600px' }}>
+            {/* Loading State or Placeholder if Script hasn't loaded */}
+            <div className="absolute inset-0 flex items-center justify-center -z-10">
+                <div className="flex flex-col items-center gap-3">
+                    <div className="w-8 h-8 border-2 border-accent-blue border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-xs text-center text-gray-500 font-mono tracking-widest animate-pulse">GRAFIK YÜKLENIYOR...</span>
+                </div>
             </div>
+            <div ref={container} className="w-full h-full relative z-10" />
         </div>
     );
 }

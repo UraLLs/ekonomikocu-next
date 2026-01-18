@@ -35,8 +35,36 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
     // const { data: { user } } = await supabase.auth.getUser();
 
     // 2. Fetch Data in Parallel
+    // Map symbol to likely news keywords
+    const getNewsQuery = (s: string) => {
+        const map: Record<string, string> = {
+            'BTC': 'Bitcoin',
+            'ETH': 'Ethereum',
+            'XRP': 'Ripple',
+            'SOL': 'Solana',
+            'AVAX': 'Avalanche',
+            'GARAN': 'Garanti',
+            'THYAO': 'Türk Hava Yolları',
+            'ASELS': 'Aselsan',
+            'KCHOL': 'Koç Holding',
+            'AKBNK': 'Akbank',
+            'SISE': 'Şişecam',
+            'BIST100': 'Borsa İstanbul',
+            'USD': 'Dolar',
+            'EUR': 'Euro',
+            'GOLD': 'Altın'
+        };
+        // Normalize: USDTRY -> USD lookup
+        if (s.includes('USD')) return 'Dolar';
+        if (s.includes('EUR')) return 'Euro';
+
+        return map[s.toUpperCase()] || s;
+    };
+
+    const newsQuery = getNewsQuery(symbol);
+
     const [news, { data: comments }] = await Promise.all([
-        getEconomyNews(),
+        getEconomyNews(newsQuery),
         supabase
             .from('comments')
             .select('*')
@@ -46,7 +74,17 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
     ]);
 
     // 3. Get Profiles for those comments
-    let commentsWithProfiles: any[] = [];
+    // Define a type for the enriched comment
+    type EnrichedComment = {
+        id: string;
+        content: string;
+        created_at: string;
+        user_id: string;
+        symbol: string | null;
+        profiles?: { id: string; username: string };
+    };
+
+    let commentsWithProfiles: EnrichedComment[] = [];
     if (comments && comments.length > 0) {
         const userIds = Array.from(new Set(comments.map(c => c.user_id)));
         const { data: profiles } = await supabase
@@ -54,7 +92,9 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
             .select('id, username')
             .in('id', userIds);
 
-        const profileMap = (profiles || []).reduce((acc: any, profile: any) => {
+        type ProfileMap = Record<string, { id: string; username: string }>;
+
+        const profileMap = (profiles || []).reduce<ProfileMap>((acc, profile) => {
             acc[profile.id] = profile;
             return acc;
         }, {});

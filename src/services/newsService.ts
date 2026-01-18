@@ -1,4 +1,7 @@
 import Parser from 'rss-parser';
+import slugify from 'slugify';
+import { createClient } from '@/utils/supabase/server'; // Use server client here as these run on server
+import { analyzeNewsWithGemini } from './geminiService';
 
 const parser = new Parser({
     headers: {
@@ -7,44 +10,231 @@ const parser = new Parser({
 });
 
 export interface NewsItem {
+    id?: string;
     title: string;
+    slug: string;
     link: string;
     pubDate: string;
     contentSnippet: string;
-    content: string;
+    content?: string;
+    summary?: string;
     image?: string;
     source: string;
+    sentiment?: 'POSITIVE' | 'NEGATIVE' | 'NEUTRAL';
 }
 
-export async function getEconomyNews(): Promise<NewsItem[]> {
-    console.log("RSS Fetching started (NTV Source)...");
+// Helper to create URL-friendly slugs
+function createSlug(title: string): string {
+    return slugify(title, {
+        lower: true,
+        strict: true,
+        locale: 'tr'
+    }) + '-' + Math.floor(Math.random() * 1000); // Add random suffix to avoid collisions
+}
+
+export async function getEconomyNews(query?: string): Promise<NewsItem[]> {
+    console.log(`RSS Fetching started. Source: ${query ? 'Google News (' + query + ')' : 'NTV Ekonomi'}...`);
     try {
-        const feed = await parser.parseURL('https://www.ntv.com.tr/ekonomi.rss');
-        console.log(`RSS Fetched: ${feed.items.length} items found.`);
+        let feedUrl = 'https://www.ntv.com.tr/ekonomi.rss';
 
-        return feed.items.map(item => {
-            // NTV RSS usually has content in description or content
-            // We need to be careful with image extraction.
+        // If a specific query is provided (e.g. for Asset Page), use Google News RSS for better relevance
+        // BUT if it is 'general', we want the default NTV feed (Homepage)
+        if (query && query !== 'general') {
+            feedUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=tr&gl=TR&ceid=TR:tr`;
+        }
 
+        const feed = await parser.parseURL(feedUrl);
+
+        // Map items to our format
+        const items = feed.items.slice(0, 15).map(item => {
+            // Google News doesn't provide images in standard enclosure usually, but we can try to extract from description if available
+            // or leave it empty to fallback to default placeholders.
             let imageUrl: string | undefined = undefined;
             if (item.enclosure?.url) {
                 imageUrl = item.enclosure.url;
             } else if (item.content?.includes('<img')) {
-                // extract if needed
+                const match = item.content.match(/src=["'](.*?)["']/);
+                if (match) imageUrl = match[1];
             }
+
+            // Clean and deterministic slug
+            const slug = slugify(item.title || '', { lower: true, strict: true, locale: 'tr' });
 
             return {
                 title: item.title || 'Başlıksız Haber',
+                slug: slug,
                 link: item.link || '#',
                 pubDate: item.pubDate || new Date().toISOString(),
-                contentSnippet: item.contentSnippet || '',
-                content: item.content || '',
+                contentSnippet: item.contentSnippet || item.content || '',
                 image: imageUrl,
-                source: 'NTV Ekonomi'
+                source: (query && query !== 'general') ? 'Google News' : 'NTV Ekonomi'
             };
-        }).slice(0, 10); // Get top 10 news
+        });
+
+        if (query) {
+            // Google News RSS returns matches, so strictly no need to filter again, but we return all items found.
+            return items;
+        }
+
+        return items;
+
     } catch (error) {
         console.error("RSS Fetch Error:", error);
         return [];
     }
 }
+
+export async function getNewsDetail(slug: string, originalLink?: string, title?: string, image?: string, pubDate?: string): Promise<NewsItem | null> {
+    const supabase = await createClient();
+
+    // 1. Check DB first
+    let { data: article } = await supabase
+        .from('news_articles')
+        .select('*')
+        .eq('slug', slug)
+        .single();
+
+    // Self-healing: If article exists but has the generic error message or the new warning format, treat it as not found (re-process)
+    if (article &&
+        article.summary !== "Analiz sırasında bir hata oluştu." &&
+        !article.summary?.startsWith("Analiz hatası:") &&
+        !article.summary?.startsWith("⚠️") // Add this line to catch the new error format
+    ) {
+        // Return formatted from DB
+        return {
+            id: article.id,
+            title: article.title,
+            slug: article.slug,
+            link: article.original_url,
+            pubDate: article.original_date,
+            contentSnippet: article.summary,
+            content: article.content,
+            summary: article.summary,
+            image: article.image_url,
+            source: 'Ekonomikoçu AI',
+            sentiment: article.sentiment
+        };
+    }
+
+    // 2. If not found (or error state), we check by original_url to avoid duplicates (Unique Constraint)
+    // Sometimes slug logic changes or title is slightly different, but URL is same.
+    if (originalLink) {
+        let { data: existingByUrl } = await supabase
+            .from('news_articles')
+            .select('*')
+            .eq('original_url', originalLink)
+            .single();
+
+        if (existingByUrl &&
+            existingByUrl.summary !== "Analiz sırasında bir hata oluştu." &&
+            !existingByUrl.summary?.startsWith("⚠️")) {
+            return {
+                id: existingByUrl.id,
+                title: existingByUrl.title,
+                slug: existingByUrl.slug,
+                link: existingByUrl.original_url,
+                pubDate: existingByUrl.original_date,
+                contentSnippet: existingByUrl.summary,
+                summary: existingByUrl.summary,
+                content: existingByUrl.content,
+                image: existingByUrl.image_url,
+                source: 'Ekonomikoçu AI',
+                sentiment: existingByUrl.sentiment
+            };
+        }
+    }
+
+    // 2.5 Validation: We need title and link to proceed
+    if (!originalLink || !title) {
+        // If we only have slug and existing article was error, we can't recover without original data.
+        // Return the error article if valid inputs are missing
+        if (article) return {
+            id: article.id,
+            title: article.title,
+            slug: article.slug,
+            link: article.original_url,
+            pubDate: article.original_date,
+            contentSnippet: article.summary,
+            content: article.content,
+            summary: article.summary,
+            image: article.image_url,
+            source: 'Ekonomikoçu AI',
+            sentiment: article.sentiment
+        };
+        return null;
+    }
+
+    // 3. Process with AI
+    console.log(`Analyzing news using Gemini 2.0 Flash: ${title}`);
+
+    // Check API Key existence before even trying (server-side check)
+    if (!process.env.GOOGLE_API_KEY) {
+        console.error("Serverside: GOOGLE_API_KEY is missing in process.env");
+    }
+
+    const analysis = await analyzeNewsWithGemini(title, title + " " + (pubDate || ""));
+
+    // 4. Save to DB (Upsert to fix previous error record if it exists)
+    // Use Service Role Key if available to bypass RLS, otherwise fallback to standard client
+    let adminSupabase = supabase;
+    if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        const { createClient: createClientJs } = require('@supabase/supabase-js');
+        adminSupabase = createClientJs(
+            process.env.NEXT_PUBLIC_SUPABASE_URL,
+            process.env.SUPABASE_SERVICE_ROLE_KEY,
+            {
+                auth: {
+                    autoRefreshToken: false,
+                    persistSession: false
+                }
+            }
+        );
+    }
+
+    const { data: newArticle, error } = await adminSupabase
+        .from('news_articles')
+        .upsert({
+            slug: slug,
+            title: title,
+            original_url: originalLink,
+            image_url: image,
+            summary: analysis.summary,
+            content: analysis.content,
+            sentiment: analysis.sentiment,
+            original_date: pubDate
+        }, { onConflict: 'slug' }) // Use slug as conflict target
+        .select()
+        .single();
+
+    if (error) {
+        console.error("Error saving news (Full Object):", JSON.stringify(error, null, 2));
+        // Return transient object
+        return {
+            title,
+            slug,
+            link: originalLink,
+            pubDate: pubDate || new Date().toISOString(),
+            contentSnippet: analysis.summary,
+            content: analysis.content,
+            summary: analysis.summary,
+            image,
+            source: 'Ekonomikoçu AI (Kaydedilemedi)',
+            sentiment: analysis.sentiment
+        };
+    }
+
+    return {
+        id: newArticle.id,
+        title: newArticle.title,
+        slug: newArticle.slug,
+        link: newArticle.original_url,
+        pubDate: newArticle.original_date,
+        contentSnippet: newArticle.summary,
+        summary: newArticle.summary,
+        content: newArticle.content,
+        image: newArticle.image_url,
+        source: 'Ekonomikoçu AI',
+        sentiment: newArticle.sentiment
+    };
+}
+

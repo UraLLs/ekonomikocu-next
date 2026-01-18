@@ -25,7 +25,7 @@ export default function NewsWidget({ news }: NewsWidgetProps) {
                     <div className="text-sm text-gray-500 text-center py-4">Haber akışı bekleniyor...</div>
                 ) : (
                     news.map((item, index) => (
-                        <a key={index} href={item.link} target="_blank" rel="noopener noreferrer" className="block group relative">
+                        <a key={index} href={`/haber/${item.slug}?url=${encodeURIComponent(item.link)}&title=${encodeURIComponent(item.title)}&date=${encodeURIComponent(item.pubDate)}&image=${encodeURIComponent(item.image || "")}`} className="block group relative">
                             <div className="flex justify-between items-start mb-1">
                                 {index === 0 && (
                                     <span className="absolute -top-1 -right-1 flex h-2 w-2">

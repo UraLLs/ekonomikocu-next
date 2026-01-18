@@ -131,8 +131,9 @@ export async function executeTrade(symbol: string, type: 'BUY' | 'SELL', quantit
         revalidatePath(`/piyasa/${symbol}`); // Sayfayı yenile
         return { success: true, message: `İşlem başarılı: ${symbol} ${type === 'BUY' ? 'alındı' : 'satıldı'}.` };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Trade Error:', error);
-        return { success: false, message: 'İşlem sırasında hat oluştu: ' + error.message };
+        const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata';
+        return { success: false, message: 'İşlem sırasında hat oluştu: ' + errorMessage };
     }
 }

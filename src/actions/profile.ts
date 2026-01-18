@@ -25,8 +25,16 @@ export async function updateProfile(formData: FormData): Promise<ProfileResult> 
         return { success: false, message: 'Kullanıcı adı en az 3 karakter olmalıdır.' };
     }
 
+    // Define exact shape for updates
+    type ProfileUpdates = {
+        updated_at: string;
+        username?: string;
+        full_name?: string;
+        avatar_url?: string;
+    };
+
     try {
-        const updates: any = {
+        const updates: ProfileUpdates = {
             updated_at: new Date().toISOString(),
         };
 
@@ -51,7 +59,7 @@ export async function updateProfile(formData: FormData): Promise<ProfileResult> 
         revalidatePath('/profil');
         return { success: true, message: 'Profil başarıyla güncellendi.' };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Profile Update Error:', error);
         return { success: false, message: 'Profil güncellenirken bir hata oluştu.' };
     }

@@ -31,8 +31,8 @@ export default function CommentFeed({ symbol, initialComments }: CommentFeedProp
     const supabase = createClient();
     const [comments, setComments] = useState<Comment[]>(initialComments);
     const [newComment, setNewComment] = useState("");
-    const [user, setUser] = useState<any>(null);
-    const [userProfile, setUserProfile] = useState<any>(null); // ADDED
+    const [user, setUser] = useState<{ id: string; user_metadata?: { username?: string; avatar_url?: string }; email?: string } | null>(null);
+    const [userProfile, setUserProfile] = useState<{ username?: string; avatar_url?: string; level?: number; xp?: number } | null>(null); // ADDED
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -95,11 +95,11 @@ export default function CommentFeed({ symbol, initialComments }: CommentFeedProp
 
                 // Update local profile state if XP changed
                 if (xpResult.success) {
-                    setUserProfile((prev: any) => ({
+                    setUserProfile(prev => prev ? ({
                         ...prev,
                         xp: xpResult.newXP,
                         level: xpResult.newLevel
-                    }));
+                    }) : null);
                 }
             }
         } catch (error) {

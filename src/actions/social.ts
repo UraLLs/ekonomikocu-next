@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 export type SocialResult = {
     success: boolean;
     message: string;
-    data?: any;
+    data?: unknown;
 };
 
 export async function postComment(symbol: string, content: string): Promise<SocialResult> {
@@ -35,7 +35,7 @@ export async function postComment(symbol: string, content: string): Promise<Soci
         revalidatePath(`/piyasa/${symbol}`);
         return { success: true, message: 'Yorumunuz paylaşıldı.' };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Post Comment Error:', error);
         return { success: false, message: 'Yorum gönderilirken hata oluştu.' };
     }

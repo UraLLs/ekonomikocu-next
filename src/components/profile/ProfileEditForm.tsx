@@ -7,8 +7,15 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 interface ProfileEditFormProps {
-    user: any;
-    profile: any;
+    user: {
+        id: string;
+        email?: string;
+    };
+    profile: {
+        username?: string;
+        full_name?: string;
+        avatar_url?: string;
+    };
 }
 
 export default function ProfileEditForm({ user, profile }: ProfileEditFormProps) {

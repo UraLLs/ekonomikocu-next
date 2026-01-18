@@ -22,12 +22,11 @@ export default async function Header() {
     return (
         <header className="sticky top-0 z-50 bg-black/50 backdrop-blur-xl border-b border-white/5 h-16 shadow-2xl supports-[backdrop-filter]:bg-black/40">
             <div className="max-w-[1400px] mx-auto px-6 h-full flex items-center justify-between">
-                {/* LOGO */}
-                <Link href="/" className="flex items-center gap-2.5 text-decoration-none">
-                    <div className="w-9 h-9 bg-gradient-to-br from-accent-green to-emerald-600 rounded-md flex items-center justify-center font-extrabold text-lg text-white">
-                        E
+                <Link href="/" className="flex items-center gap-2.5 text-decoration-none group">
+                    <div className="relative w-10 h-10 transition-transform group-hover:scale-105">
+                        <img src="/logo.png" alt="Ekonomikoçu Logo" className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]" />
                     </div>
-                    <div className="font-bold text-xl text-text-primary">
+                    <div className="font-bold text-xl text-text-primary tracking-tight">
                         ekonomi<span className="text-accent-green">kocu</span>
                     </div>
                 </Link>

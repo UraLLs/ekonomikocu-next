@@ -11,9 +11,9 @@ export default function Footer() {
 
                     {/* Brand Column */}
                     <div>
-                        <a href="#" className="flex items-center gap-2.5 text-decoration-none mb-4">
-                            <div className="w-8 h-8 bg-gradient-to-br from-accent-green to-emerald-600 rounded-md flex items-center justify-center font-extrabold text-white">
-                                E
+                        <a href="#" className="flex items-center gap-2.5 text-decoration-none mb-4 group">
+                            <div className="relative w-9 h-9 transition-transform group-hover:scale-105">
+                                <img src="/logo.png" alt="Ekonomikoçu Logo" className="w-full h-full object-contain" />
                             </div>
                             <div className="font-bold text-lg text-text-primary">
                                 ekonomi<span className="text-accent-green">kocu</span>

@@ -5,7 +5,7 @@ import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function UserMenu({ user }: { user: User }) {
+export default function UserMenu({ user, balance }: { user: User, balance: number | null }) {
     const [isOpen, setIsOpen] = useState(false);
     const router = useRouter();
     const supabase = createClient();
@@ -38,10 +38,15 @@ export default function UserMenu({ user }: { user: User }) {
                         className="fixed inset-0 z-40"
                         onClick={() => setIsOpen(false)}
                     ></div>
-                    <div className="absolute right-0 top-12 w-56 bg-bg-surface border border-border-subtle rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                        <div className="p-3 border-b border-border-subtle bg-bg-elevated/50">
-                            <div className="text-sm font-bold text-text-primary">{user.email}</div>
-                            <div className="text-xs text-text-muted">Pro Üye</div>
+                    <div className="absolute right-0 top-12 w-64 bg-bg-surface border border-border-subtle rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                        <div className="p-4 border-b border-border-subtle bg-bg-elevated/50">
+                            <div className="text-sm font-bold text-text-primary break-all">{user.email}</div>
+                            <div className="flex items-center justify-between mt-2">
+                                <span className="text-xs text-text-muted">Bakiye:</span>
+                                <span className="text-sm font-bold text-accent-green">
+                                    ₺{balance?.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? '...'}
+                                </span>
+                            </div>
                         </div>
                         <div className="p-1.5 space-y-0.5">
                             <button className="w-full text-left px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover rounded-lg transition-colors flex items-center gap-2">

@@ -49,7 +49,7 @@ export default async function Home() {
       <Ticker />
       <Header />
 
-      <div className="max-w-[1400px] mx-auto p-6 md:p-8">
+      <div className="max-w-[1400px] mx-auto p-4 md:p-6 lg:p-8">
         <div className="flex flex-col xl:flex-row gap-8">
 
           {/* MAIN CONTENT AREA */}

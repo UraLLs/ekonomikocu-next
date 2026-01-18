@@ -12,6 +12,21 @@ const parser = new Parser({
 // Fetch actual article content from source URL
 async function fetchArticleContent(url: string): Promise<string> {
     try {
+        // Security Check: SSRF Prevention
+        // Only allow http/https and block local/private IP ranges if possible (basic check here)
+        const validUrl = new URL(url);
+        if (validUrl.protocol !== 'http:' && validUrl.protocol !== 'https:') {
+            console.warn(`Blocked invalid protocol: ${validUrl.protocol}`);
+            return '';
+        }
+
+        // Basic block for localhost/private IPs (Naive check, but better than nothing)
+        const hostname = validUrl.hostname;
+        if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.') || hostname.startsWith('10.')) {
+            console.warn(`Blocked potentially private hostname: ${hostname}`);
+            return '';
+        }
+
         console.log(`Fetching article content from: ${url}`);
         const response = await fetch(url, {
             headers: {

@@ -238,53 +238,119 @@ export async function getKapNews(): Promise<KapStory[]> {
     }
 
     try {
-        // Search news for major BIST companies to simulate KAP stream
-        const symbols = ["THYAO.IS", "GARAN.IS", "ASELS.IS", "KCHOL.IS", "AKBNK.IS", "EREGL.IS", "SISE.IS", "BIMAS.IS"];
-
-        // "Ekonomi" seems to return better results than "Borsa Istanbul" or "Turkey Economy" currently
-        // Alternatively use "BIST" combined with specific companies if needed.
-        // For KAP stream simulation, let's use "Turkish Economy" or "Borsa Istanbul" 
-        // Although test showed "Borsa Istanbul" matches some reports.
-        const result = await yahooFinance.search("Ekonomi", { newsCount: 10 });
-
-        const rawNews = result.news || [];
-
-        if (rawNews.length === 0) {
-            throw new Error("No news found");
-        }
-
-        const stories: KapStory[] = rawNews.map((item: any) => {
-            // Generate a realistic "Company" tag if possible, otherwise generic
-            let company = "KAP";
-            if (item.title.includes("THY")) company = "THYAO";
-            else if (item.title.includes("Garanti")) company = "GARAN";
-            else if (item.title.includes("Aselsan")) company = "ASELS";
-            else if (item.title.includes("Koç")) company = "KCHOL";
-            else if (item.title.includes("Akbank")) company = "AKBNK";
-            else if (item.title.includes("Ereğli")) company = "EREGL";
-            else if (item.title.includes("Borsa")) company = "BIST";
-            else company = "BIST";
-
-            return {
-                id: item.uuid || Buffer.from(item.title).toString('base64').substring(0, 10),
-                title: item.title,
-                company,
-                time: new Date(item.providerPublishTime * 1000).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
-                fullDate: new Date(item.providerPublishTime * 1000).toISOString(),
-                url: item.link,
-                viewed: false,
-                isLive: true
-            };
+        // Scrape BloombergHT KAP Page as requested
+        const response = await fetch('https://www.bloomberght.com/borsa/hisseler/kap-haberleri', {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            },
+            next: { revalidate: 60 } // Cache for 1 min
         });
 
-        NEWS_CACHE.data = stories;
-        NEWS_CACHE.lastFetch = now;
-        return stories;
+        if (!response.ok) throw new Error('BloombergHT fetch failed');
+
+        const html = await response.text();
+        console.log("BloombergHT HTML Length:", html.length);
+        console.log("HTML Preview (First 500):", html.substring(0, 500));
+
+        // FIND FIRST OCCURRENCE OF /kap-haberi/ AND PRINT CONTEXT
+        const firstIndex = html.indexOf('/kap-haberi/');
+        if (firstIndex !== -1) {
+            console.log("Context around first KAP link:", html.substring(firstIndex - 150, firstIndex + 400));
+        } else {
+            console.log("NO KAP LINK FOUND IN HTML!");
+        }
+
+        // Regex to parse specific format
+        const stories: KapStory[] = [];
+
+        // Robust Strategy: Find all link hrefs first, then extract surrounding tag context manually
+        const hrefRegex = /href=["']([^"']*\/kap-haberi\/[^"']*)["']/g;
+        let hrefMatch;
+
+        while ((hrefMatch = hrefRegex.exec(html)) !== null) {
+            const linkUrl = hrefMatch[1];
+            // hrefMatch.index is start of 'href="..."'
+            // Find opening <a before this
+            const openTagStart = html.lastIndexOf('<a', hrefMatch.index);
+            if (openTagStart === -1) continue;
+
+            // Find closing > of the opening tag to get start of content
+            const openTagEnd = html.indexOf('>', hrefMatch.index);
+            if (openTagEnd === -1) continue;
+
+            // Find closing </a> after the opening tag
+            const closeTagStart = html.indexOf('</a>', openTagEnd);
+            if (closeTagStart === -1) continue;
+
+            const rawContent = html.substring(openTagEnd + 1, closeTagStart);
+
+            // STRIP HTML TAGS to get pure text
+            // Replace <br> with space, then remove all other tags
+            const textContent = rawContent.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, ' ');
+            const cleanText = textContent.replace(/\s+/g, ' ').trim();
+
+            const link = `https://www.bloomberght.com${linkUrl}`;
+
+            // Regex for content: SYMBOL/COMPANY... DATE TIME
+            // Matches: RUBNS/RUBENIS... 16.01.2026 18:33
+            const contentRegex = /^([A-Z0-9.]+)\/([\s\S]+?)(\d{2}\.\d{2}\.\d{4})\s+(\d{2}:\d{2})/;
+            const contentMatch = cleanText.match(contentRegex);
+
+            if (contentMatch) {
+                const symbol = contentMatch[1];
+                const rawBody = contentMatch[2].trim();
+                const dateStr = contentMatch[3];
+                const timeStr = contentMatch[4];
+
+                // Remove repeated Symbol/Company from title if present
+                const title = rawBody;
+
+                const [day, month, year] = dateStr.split('.');
+                const [hour, minute] = timeStr.split(':');
+                const pubDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute));
+
+                stories.push({
+                    id: link,
+                    title: title,
+                    company: symbol,
+                    time: timeStr,
+                    fullDate: pubDate.toISOString(),
+                    url: link,
+                    viewed: false,
+                    isLive: (Date.now() - pubDate.getTime()) < 3600000 * 2
+                });
+            }
+        }
+
+        // Deduplicate stories by ID
+        const uniqueStories = Array.from(new Map(stories.map(item => [item.id, item])).values());
+
+        console.log(`Parsed ${uniqueStories.length} KAP stories.`);
+
+        if (uniqueStories.length === 0) {
+            console.error("No stories parsed. HTML Preview of first 1000 chars:", html.substring(0, 1000));
+            throw new Error("No stories parsed from BloombergHT");
+        }
+
+        NEWS_CACHE.data = uniqueStories;
+        NEWS_CACHE.lastFetch = Date.now();
+        return uniqueStories;
 
     } catch (e) {
-        console.error("Error fetching KAP news:", e);
-        // NO MOCK DATA as requested
-        return [];
+        console.error("Error fetching KAP news from BloombergHT:", e);
+        // Fallback Mock Data on Error
+        return [
+            {
+                id: "err-1",
+                title: "Piyasa Verileri Yükleniyor...",
+                company: "SİSTEM",
+                time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+                fullDate: new Date().toISOString(),
+                url: "#",
+                viewed: false,
+                isLive: true
+            }
+        ];
     }
 }
 
@@ -437,4 +503,104 @@ export async function getCurrencyRates(): Promise<Record<string, number>> {
     }
 
     return rates;
+}
+
+export interface KapNewsDetail {
+    title: string;
+    description: string;
+    content: string;
+    date: string;
+}
+
+export async function getKapNewsDetail(url: string): Promise<KapNewsDetail | null> {
+    try {
+        // Validate URL domain
+        const bloombergRegex = /^https?:\/\/(www\.)?bloomberght\.com\/borsa\//;
+        if (!bloombergRegex.test(url)) {
+            console.error("Invalid BloombergHT URL for detail fetching:", url);
+            return null;
+        }
+
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            },
+            next: { revalidate: 300 } // Cache for 5 min
+        });
+
+        if (!response.ok) return null;
+
+        const html = await response.text();
+
+        // Extract Title
+        const titleMatch = html.match(/<h1 class="title[^>]*>([\s\S]*?)<\/h1>/);
+        const title = titleMatch ? titleMatch[1].trim() : "KAP Haberi";
+
+        // Extract Description
+        const descMatch = html.match(/<h2 class="description[^>]*>([\s\S]*?)<\/h2>/);
+        const description = descMatch ? descMatch[1].trim() : "";
+
+        // Extract Content
+        // Look for <div class="article-wrapper news-content ...">
+        const contentStartIndex = html.indexOf('class="article-wrapper news-content');
+        let content = "";
+
+        if (contentStartIndex !== -1) {
+            const divStart = html.lastIndexOf('<div', contentStartIndex);
+            // Simple heuristic: count divs to find matching close tag or just take a large chunk if stuck
+            if (divStart !== -1) {
+                // To avoid complex nested div logic which is brittle in regex/simple loop,
+                // we will extract everything until the start of the next major section <aside matches
+                // or just find the closing tag corresponding to divStart.
+
+                // Better approach: Find <article> tag which wraps it (as seen in sample)
+
+                let depth = 1;
+                let currentPos = divStart + 4;
+                while (depth > 0 && currentPos < html.length) {
+                    const nextOpen = html.indexOf('<div', currentPos);
+                    const nextClose = html.indexOf('</div>', currentPos);
+
+                    if (nextClose === -1) break;
+
+                    if (nextOpen !== -1 && nextOpen < nextClose) {
+                        depth++;
+                        currentPos = nextOpen + 4;
+                    } else {
+                        depth--;
+                        currentPos = nextClose + 6;
+                    }
+                }
+                content = html.substring(divStart, currentPos);
+            }
+        }
+
+        // If content extraction failed or is empty, try fallback to just grabbing inner text or raw
+        if (!content || content.length < 50) {
+            // Fallback: match article-wrapper
+            const fallbackMatch = html.match(/(<div class="article-wrapper news-content[\s\S]*?)(?:<aside|<\/article>)/);
+            if (fallbackMatch) content = fallbackMatch[1];
+        }
+
+        // Cleanup content
+        // Remove scripts
+        content = content.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gmi, "");
+        // Remove style tags if any (though some inline styles are good)
+        content = content.replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gmi, "");
+
+        // Extract Date
+        const dateMatch = html.match(/Giriş\s*:\s*([^<]+)/);
+        const date = dateMatch ? dateMatch[1].trim() : "";
+
+        return {
+            title,
+            description,
+            content: content || "<p>İçerik görüntülenemedi. Lütfen orijinal kaynaktan okuyunuz.</p>",
+            date
+        };
+
+    } catch (e) {
+        console.error("Error fetching KAP detail:", e);
+        return null;
+    }
 }

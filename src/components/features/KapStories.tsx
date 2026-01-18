@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { KapStory } from "@/types/market";
+import Link from "next/link";
 
 export default function KapStories() {
     const [stories, setStories] = useState<KapStory[]>([]);
@@ -44,7 +45,12 @@ export default function KapStories() {
     return (
         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide select-none">
             {stories.map((story) => (
-                <div key={story.id} className="flex flex-col items-center gap-2 cursor-pointer group min-w-[72px]" title={story.title}>
+                <Link
+                    key={story.id}
+                    href={`/haber/kap/detay?url=${encodeURIComponent(story.url || '')}`}
+                    className="flex flex-col items-center gap-2 cursor-pointer group min-w-[72px]"
+                    title={story.title}
+                >
                     <div className={`p-[3px] rounded-full ${story.viewed ? 'bg-border-subtle' : 'bg-gradient-to-tr from-brand-primary to-accent-blue'}`}>
                         <div className="p-[2px] bg-bg-primary rounded-full relative">
                             <div className="w-14 h-14 rounded-full bg-bg-elevated flex items-center justify-center border-2 border-bg-primary group-hover:scale-105 transition-transform overflow-hidden relative">
@@ -64,7 +70,7 @@ export default function KapStories() {
                     <span className="text-[11px] font-medium text-text-secondary text-center truncate w-full group-hover:text-text-primary transition-colors max-w-[72px]">
                         {story.time}
                     </span>
-                </div>
+                </Link>
             ))}
         </div>
     );

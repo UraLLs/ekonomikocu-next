@@ -39,7 +39,7 @@ export default async function MarketsPage() {
 
     return (
         <main className="min-h-screen bg-bg-primary text-text-primary">
-            <Ticker />
+            {/* Ticker removed to avoid duplication with layout */}
             <Header />
 
             <div className="max-w-[1400px] mx-auto p-6 md:p-8 min-h-[60vh]">

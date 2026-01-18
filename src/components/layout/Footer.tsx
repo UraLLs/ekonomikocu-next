@@ -45,33 +45,41 @@ export default function Footer() {
                         <div>
                             <h4 className="text-[13px] font-semibold text-text-primary uppercase tracking-wide mb-4">Platform</h4>
                             <nav className="flex flex-col gap-1.5">
-                                {['Ana Sayfa', 'Piyasalar', 'Sosyal', 'Eğitimler', 'Canlı Yayın', 'Forum'].map(item => (
-                                    <a key={item} href="#" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">{item}</a>
-                                ))}
+                                <a href="/" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">Ana Sayfa</a>
+                                <a href="/piyasa" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">Piyasalar</a>
+                                <a href="/canli" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">Canlı Yayın</a>
+                                <a href="/egitim" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">Eğitimler</a>
+                                <a href="/forum" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">Forum</a>
                             </nav>
                         </div>
                         <div>
                             <h4 className="text-[13px] font-semibold text-text-primary uppercase tracking-wide mb-4">Araçlar</h4>
                             <nav className="flex flex-col gap-1.5">
-                                {['Döviz Çevirici', 'Yatırım Hesapla', 'Portföy Takibi', 'Ekonomik Takvim', 'Teknik Analiz'].map(item => (
-                                    <a key={item} href="#" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">{item}</a>
-                                ))}
+                                <a href="/araclar/doviz-cevirici" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">Döviz Çevirici</a>
+                                <a href="/araclar/yatirim-hesapla" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">Yatırım Hesapla</a>
+                                <a href="/araclar/portfoy-takibi" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">Portföy Takibi</a>
+                                <a href="/araclar/ekonomik-takvim" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">Ekonomik Takvim</a>
+                                <a href="/araclar/teknik-analiz" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">Teknik Analiz</a>
                             </nav>
                         </div>
                         <div>
                             <h4 className="text-[13px] font-semibold text-text-primary uppercase tracking-wide mb-4">Şirket</h4>
                             <nav className="flex flex-col gap-1.5">
-                                {['Hakkımızda', 'Kariyer', 'Blog', 'Basın', 'İletişim'].map(item => (
-                                    <a key={item} href="#" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">{item}</a>
-                                ))}
+                                <a href="/hakkimizda" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">Hakkımızda</a>
+                                <a href="/kariyer" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">Kariyer</a>
+                                <a href="/blog" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">Blog</a>
+                                <a href="/basin" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">Basın</a>
+                                <a href="/iletisim" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">İletişim</a>
                             </nav>
                         </div>
                         <div>
                             <h4 className="text-[13px] font-semibold text-text-primary uppercase tracking-wide mb-4">Destek</h4>
                             <nav className="flex flex-col gap-1.5">
-                                {['Yardım Merkezi', 'SSS', 'Güvenlik', 'Kurallar', 'Geri Bildirim'].map(item => (
-                                    <a key={item} href="#" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">{item}</a>
-                                ))}
+                                <a href="/yardim-merkezi" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">Yardım Merkezi</a>
+                                <a href="/sss" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">SSS</a>
+                                <a href="/guvenlik" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">Güvenlik</a>
+                                <a href="/kurallar" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">Kurallar</a>
+                                <a href="/geri-bildirim" className="text-[13px] text-text-secondary hover:text-accent-green transition-colors">Geri Bildirim</a>
                             </nav>
                         </div>
                     </div>
@@ -80,14 +88,14 @@ export default function Footer() {
                     <div className="col-span-full lg:col-span-1 mt-6 lg:mt-0">
                         <h4 className="text-[13px] font-semibold text-text-primary uppercase tracking-wide mb-4">Mobil Uygulama</h4>
                         <div className="flex flex-row lg:flex-col gap-2.5">
-                            <a href="#" className="flex items-center gap-2.5 px-3.5 py-2.5 bg-bg-secondary border border-border-subtle rounded-md hover:border-accent-green hover:bg-bg-surface-hover transition-all text-text-primary group">
+                            <a href="/mobil-uygulama" className="flex items-center gap-2.5 px-3.5 py-2.5 bg-bg-secondary border border-border-subtle rounded-md hover:border-accent-green hover:bg-bg-surface-hover transition-all text-text-primary group">
                                 <svg className="w-5 h-5 text-text-secondary group-hover:text-accent-green" fill="currentColor" viewBox="0 0 24 24"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" /></svg>
                                 <div>
                                     <span className="block text-[10px] text-text-muted leading-tight">Mevcut</span>
                                     <strong className="block text-[13px] font-semibold">App Store</strong>
                                 </div>
                             </a>
-                            <a href="#" className="flex items-center gap-2.5 px-3.5 py-2.5 bg-bg-secondary border border-border-subtle rounded-md hover:border-accent-green hover:bg-bg-surface-hover transition-all text-text-primary group">
+                            <a href="/mobil-uygulama" className="flex items-center gap-2.5 px-3.5 py-2.5 bg-bg-secondary border border-border-subtle rounded-md hover:border-accent-green hover:bg-bg-surface-hover transition-all text-text-primary group">
                                 <svg className="w-5 h-5 text-text-secondary group-hover:text-accent-green" fill="currentColor" viewBox="0 0 24 24"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 01-.61-.92V2.734a1 1 0 01.609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.198l2.807 1.626a1 1 0 010 1.73l-2.808 1.626L15.206 12l2.492-2.491zM5.864 2.658L16.802 8.99l-2.303 2.303-8.635-8.635z" /></svg>
                                 <div>
                                     <span className="block text-[10px] text-text-muted leading-tight">Mevcut</span>
@@ -104,9 +112,9 @@ export default function Footer() {
                     <div className="flex flex-col md:flex-row items-center gap-6">
                         <p>© 2026 Ekonomikocu. Tüm hakları saklıdır.</p>
                         <div className="flex gap-4">
-                            <a href="#" className="hover:text-accent-green transition-colors">Gizlilik</a>
-                            <a href="#" className="hover:text-accent-green transition-colors">Kullanım Koşulları</a>
-                            <a href="#" className="hover:text-accent-green transition-colors">Çerezler</a>
+                            <a href="/gizlilik-politikasi" className="hover:text-accent-green transition-colors">Gizlilik</a>
+                            <a href="/kullanim-kosullari" className="hover:text-accent-green transition-colors">Kullanım Koşulları</a>
+                            <a href="/iletisim" className="hover:text-accent-green transition-colors">İletişim</a>
                         </div>
                     </div>
                     <div className="bg-accent-orange-soft text-text-muted px-3 py-2 rounded-md max-w-md text-center md:text-right text-[11px]">

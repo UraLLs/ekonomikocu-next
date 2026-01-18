@@ -3,6 +3,7 @@ import Ticker from "@/components/layout/Ticker";
 import Footer from "@/components/layout/Footer";
 import { getBinanceTicker, getAssetDetail } from "@/services/marketService";
 import Link from "next/link";
+import SummaryCard from '@/components/market/SummaryCard';
 
 export const revalidate = 60;
 
@@ -190,23 +191,4 @@ export default async function MarketsPage() {
     );
 }
 
-function SummaryCard({ title, data, icon }: { title: string, data: any, icon: string }) {
-    if (!data) return <div className="h-24 bg-white/5 rounded-xl animate-pulse"></div>;
-    const isUp = data.isUp || data.up;
-    return (
-        <div className="bg-black/40 border border-white/5 rounded-xl p-4 hover:border-accent-blue/30 transition-all cursor-pointer group backdrop-blur-xl shadow-lg relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="flex items-center justify-between mb-2 relative z-10">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{title}</span>
-                <span className="text-lg opacity-50 grayscale group-hover:grayscale-0 transition-all filter">{icon}</span>
-            </div>
-            <div className="flex items-end gap-2 relative z-10">
-                <span className="text-xl font-black text-gray-100 tracking-tight">{data.price}</span>
-            </div>
-            <div className={`text-xs font-bold mt-1 flex items-center gap-1 relative z-10 ${isUp ? 'text-accent-green' : 'text-accent-red'}`}>
-                <span>{isUp ? '▲' : '▼'}</span>
-                {data.changePercent}
-            </div>
-        </div>
-    );
-}
+

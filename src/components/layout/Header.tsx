@@ -42,23 +42,20 @@ export default async function Header() {
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M23 6l-9.5 9.5-5-5L1 18" /><path d="M17 6h6v6" /></svg>
                         Piyasalar
                     </Link>
-                    <a href="#" className="px-3 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover rounded-md transition-colors flex items-center gap-1.5">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
-                        Sosyal
-                        <span className="bg-accent-red text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">12</span>
-                    </a>
-                    <a href="#" className="px-3 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover rounded-md transition-colors flex items-center gap-1.5">
+
+                    <Link href="/egitim" className="px-3 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover rounded-md transition-colors flex items-center gap-1.5">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>
                         Eğitim
-                    </a>
-                    <a href="#" className="px-3 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover rounded-md transition-colors flex items-center gap-1.5">
+                    </Link>
+                    <Link href="/canli" className="px-3 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover rounded-md transition-colors flex items-center gap-1.5">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><polygon points="10 8 16 12 10 16 10 8" /></svg>
                         Canlı
                         <span className="bg-accent-red text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">3</span>
-                    </a>
-                    <a href="#" className="px-3 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover rounded-md transition-colors flex items-center gap-1.5">
+                    </Link>
+                    <a href="https://forum.ekonomikocu.com" target="_blank" rel="noreferrer" className="px-3 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover rounded-md transition-colors flex items-center gap-1.5">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
                         Forum
+                        <span className="w-1.5 h-1.5 bg-accent-blue rounded-full"></span>
                     </a>
                 </nav>
 

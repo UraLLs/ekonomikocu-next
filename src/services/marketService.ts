@@ -6,12 +6,7 @@ const yahooFinance = new YahooFinance({
     suppressNotices: ['yahooSurvey']
 });
 
-export interface MarketTicker {
-    symbol: string;
-    price: string;
-    changePercent: string;
-    up: boolean;
-}
+// MarketTicker is imported from @/types/market
 
 // Map local symbols to Yahoo Finance symbols
 function normalizeSymbol(symbol: string): string {
@@ -168,6 +163,8 @@ export async function getAssetDetail(symbol: string) {
     };
 }
 
+import { MarketTicker, BinanceTickerItem } from "@/types/market";
+
 export async function getBinanceTicker(): Promise<MarketTicker[]> {
     try {
         const response = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbols=%5B%22BTCUSDT%22,%22ETHUSDT%22,%22USDTTRY%22,%22BNBUSDT%22,%22SOLUSDT%22%5D', {
@@ -175,9 +172,9 @@ export async function getBinanceTicker(): Promise<MarketTicker[]> {
         });
 
         if (!response.ok) throw new Error('Api Error');
-        const data = await response.json();
+        const data: BinanceTickerItem[] = await response.json();
 
-        return data.map((item: any) => {
+        return data.map((item) => {
             const isUp = parseFloat(item.priceChangePercent) >= 0;
             let displayName = item.symbol;
             let price = parseFloat(item.lastPrice);
@@ -197,7 +194,7 @@ export async function getBinanceTicker(): Promise<MarketTicker[]> {
             return {
                 symbol: displayName,
                 price: formattedPrice,
-                changePercent: `%${Math.abs(item.priceChangePercent).toFixed(2)}`,
+                changePercent: `%${Math.abs(parseFloat(item.priceChangePercent)).toFixed(2)}`,
                 up: isUp
             };
         });

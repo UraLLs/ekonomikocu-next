@@ -48,18 +48,16 @@ export default function MobileNav() {
                             <MobileLink href="/piyasa" onClick={() => setIsOpen(false)} icon={<ChartIcon />}>
                                 Piyasalar
                             </MobileLink>
-                            <MobileLink href="#" onClick={() => setIsOpen(false)} icon={<UsersIcon />}>
-                                Sosyal
-                            </MobileLink>
-                            <MobileLink href="#" onClick={() => setIsOpen(false)} icon={<AcademicIcon />}>
+                            <MobileLink href="/egitim" onClick={() => setIsOpen(false)} icon={<AcademicIcon />}>
                                 Eğitim
                             </MobileLink>
-                            <MobileLink href="#" onClick={() => setIsOpen(false)} icon={<LiveIcon />}>
+                            <MobileLink href="/canli" onClick={() => setIsOpen(false)} icon={<LiveIcon />}>
                                 Canlı
                             </MobileLink>
-                            <MobileLink href="#" onClick={() => setIsOpen(false)} icon={<ChatIcon />}>
+                            <a href="https://forum.ekonomikocu.com" target="_blank" rel="noreferrer" onClick={() => setIsOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover rounded-lg transition-colors border border-transparent hover:border-border-subtle">
+                                <span className="text-accent-green"><ChatIcon /></span>
                                 Forum
-                            </MobileLink>
+                            </a>
                         </nav>
 
                         <div className="mt-auto pt-6 border-t border-border-subtle">

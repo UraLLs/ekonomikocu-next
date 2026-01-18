@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from "react";
-import { postComment } from "@/actions/social";
+// import { postComment } from "@/actions/social"; // REMOVED: Social actions are deprecated
 import { formatDistanceToNow } from "date-fns";
 import { tr } from "date-fns/locale";
 
@@ -35,11 +35,12 @@ export default function CommentSection({ symbol, currentUser, comments }: Commen
         setIsSubmitting(true);
         setError(null);
 
-        const result = await postComment(symbol, content);
+        // TODO: Re-implement comment submission or remove entirely
+        // const result = await postComment(symbol, content);
+        const result = { success: false, message: "Yorum sistemi geçici olarak devre dışıdır." };
 
         if (result.success) {
             setContent(""); // Clear form
-            // Revalidation happens on server, but we might want to optimistically update or just wait for revalidatePath
         } else {
             setError(result.message);
         }

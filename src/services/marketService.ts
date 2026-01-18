@@ -233,6 +233,10 @@ export async function getKapNews(): Promise<KapStory[]> {
 
         const rawNews = result.news || [];
 
+        if (rawNews.length === 0) {
+            throw new Error("No news found");
+        }
+
         const stories: KapStory[] = rawNews.map((item: any) => {
             // Generate a realistic "Company" tag if possible, otherwise generic
             let company = "KAP";

@@ -5,7 +5,9 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
-export default function LoginPage() {
+import { Suspense } from "react";
+
+function LoginForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
@@ -41,7 +43,6 @@ export default function LoginPage() {
                     email,
                     password,
                 });
-                if (error) throw error;
                 if (error) throw error;
 
                 const nextUrl = searchParams.get('next') || '/profil';
@@ -209,5 +210,13 @@ export default function LoginPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-bg-primary text-text-muted">Yükleniyor...</div>}>
+            <LoginForm />
+        </Suspense>
     );
 }

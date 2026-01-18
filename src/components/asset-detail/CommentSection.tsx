@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from "react";
-// import { postComment } from "@/actions/social"; // REMOVED: Social actions are deprecated
+import { postComment } from "@/actions/asset";
 import { formatDistanceToNow } from "date-fns";
 import { tr } from "date-fns/locale";
 
@@ -35,14 +35,12 @@ export default function CommentSection({ symbol, currentUser, comments }: Commen
         setIsSubmitting(true);
         setError(null);
 
-        // TODO: Re-implement comment submission or remove entirely
-        // const result = await postComment(symbol, content);
-        const result = { success: false, message: "Yorum sistemi geçici olarak devre dışıdır." };
+        const result = await postComment(symbol, content);
 
         if (result.success) {
             setContent(""); // Clear form
         } else {
-            setError(result.message);
+            setError(result.message || "Bir hata oluştu");
         }
         setIsSubmitting(false);
     };

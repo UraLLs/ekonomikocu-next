@@ -6,7 +6,7 @@ import CategoryFilter from "@/components/education/CategoryFilter";
 import { COURSES } from "@/data/education";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
-export default function EducationCatalog({ sidebar }: { sidebar: React.ReactNode }) {
+export default function EducationCatalog() {
     const [activeCategory, setActiveCategory] = useState("Tümü");
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -21,10 +21,10 @@ export default function EducationCatalog({ sidebar }: { sidebar: React.ReactNode
         <div className="flex flex-col min-h-screen">
             {/* HERO SECTION */}
             <section className="relative py-12 md:py-20 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-b from-accent-blue/10 to-bg-primary pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-b from-accent-blue/5 to-bg-primary pointer-events-none" />
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent-green/5 blur-[120px] rounded-full pointer-events-none" />
 
-                <div className="max-w-[1400px] mx-auto px-6 relative z-10 text-center">
+                <div className="px-6 relative z-10 text-center">
                     <h1 className="text-4xl md:text-6xl font-black mb-6 tracking-tight">
                         Finansal Okuryazarlık <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-green to-emerald-400">Akademisi</span>
@@ -54,39 +54,30 @@ export default function EducationCatalog({ sidebar }: { sidebar: React.ReactNode
             </section>
 
             {/* CONTENT CONTAINER */}
-            <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 pb-24 w-full">
-                <div className="flex flex-col xl:flex-row gap-8">
-
-                    {/* LEFT: CATALOG */}
-                    <div className="flex-1 min-w-0">
-                        {/* Categories */}
-                        <div className="mb-8">
-                            <CategoryFilter activeCategory={activeCategory} onSelect={setActiveCategory} />
-                        </div>
-
-                        {/* Grid */}
-                        {filteredCourses.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {filteredCourses.map(course => (
-                                    <CourseCard key={course.id} course={course} />
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="text-center py-20 border border-dashed border-border-subtle rounded-2xl bg-bg-surface/50">
-                                <p className="text-lg text-text-muted">Aradığınız kriterlere uygun eğitim bulunamadı.</p>
-                                <button
-                                    onClick={() => { setActiveCategory("Tümü"); setSearchQuery(""); }}
-                                    className="mt-4 text-accent-green hover:underline font-medium"
-                                >
-                                    Filtreleri Temizle
-                                </button>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* RIGHT: SIDEBAR */}
-                    {sidebar}
+            <div className="px-4 md:px-6 lg:px-8 pb-24 w-full">
+                {/* Categories */}
+                <div className="mb-8">
+                    <CategoryFilter activeCategory={activeCategory} onSelect={setActiveCategory} />
                 </div>
+
+                {/* Grid */}
+                {filteredCourses.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+                        {filteredCourses.map(course => (
+                            <CourseCard key={course.id} course={course} />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-20 border border-dashed border-border-subtle rounded-2xl bg-bg-surface/50">
+                        <p className="text-lg text-text-muted">Aradığınız kriterlere uygun eğitim bulunamadı.</p>
+                        <button
+                            onClick={() => { setActiveCategory("Tümü"); setSearchQuery(""); }}
+                            className="mt-4 text-accent-green hover:underline font-medium"
+                        >
+                            Filtreleri Temizle
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

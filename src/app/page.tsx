@@ -3,7 +3,7 @@ import Header from "@/components/layout/Header";
 
 import KapStories from "@/components/features/KapStories";
 import NewsSection from "@/components/features/NewsSection";
-import FinanceTools from "@/components/features/FinanceTools";
+import IPOArena from "@/components/features/IPOArena";
 import Sidebar from "@/components/layout/Sidebar";
 import Footer from "@/components/layout/Footer";
 
@@ -75,7 +75,8 @@ export default async function Home() {
               <NewsSection />
             </Suspense>
 
-            <FinanceTools />
+            {/* HALKA ARZ ARENASI (New Premium Section) */}
+            <IPOArena />
           </div>
 
           {/* SIDEBAR AREA - Passing feedData here */}

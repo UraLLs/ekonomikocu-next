@@ -14,7 +14,6 @@ export const metadata: Metadata = {
 
 import { Providers } from "@/components/providers/Providers";
 import Ticker from "@/components/layout/Ticker";
-import TickerWrapper from "@/components/layout/TickerWrapper";
 import Script from "next/script";
 
 export default function RootLayout({
@@ -41,9 +40,7 @@ export default function RootLayout({
         </Script>
 
         <Providers>
-          <TickerWrapper>
-            <Ticker />
-          </TickerWrapper>
+          <Ticker />
           {children}
         </Providers>
       </body>

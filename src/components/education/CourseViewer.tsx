@@ -1,10 +1,8 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { PlayCircleIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
-import { CheckCircleIcon as CheckCircleSolid } from "@heroicons/react/24/solid";
+import { useState } from 'react';
+import { PlayCircleIcon, LockClosedIcon } from "@heroicons/react/24/outline";
 import Image from 'next/image';
-import { markLessonComplete, markLessonIncomplete } from '@/actions/progressActions';
 
 interface Lesson {
     id: string;
@@ -17,14 +15,10 @@ interface Lesson {
 interface CourseViewerProps {
     course: any;
     lessons: Lesson[];
-    completedLessons?: string[];
-    isLoggedIn?: boolean;
 }
 
-export default function CourseViewer({ course, lessons, completedLessons = [], isLoggedIn = false }: CourseViewerProps) {
+export default function CourseViewer({ course, lessons }: CourseViewerProps) {
     const [activeLesson, setActiveLesson] = useState<Lesson | null>(lessons.length > 0 ? lessons[0] : null);
-    const [completed, setCompleted] = useState<Set<string>>(new Set(completedLessons));
-    const [isPending, startTransition] = useTransition();
 
     const getEmbedUrl = (url: string) => {
         if (!url) return '';
@@ -35,33 +29,6 @@ export default function CourseViewer({ course, lessons, completedLessons = [], i
         // Add parameters to remove related videos and clean UI
         return `${embedUrl}${embedUrl.includes('?') ? '&' : '?'}rel=0&modestbranding=1&showinfo=0`;
     };
-
-    const toggleComplete = (lessonId: string) => {
-        if (!isLoggedIn) return;
-
-        startTransition(async () => {
-            if (completed.has(lessonId)) {
-                const result = await markLessonIncomplete(lessonId, course.id);
-                if (result.success) {
-                    setCompleted(prev => {
-                        const next = new Set(prev);
-                        next.delete(lessonId);
-                        return next;
-                    });
-                }
-            } else {
-                const result = await markLessonComplete(lessonId, course.id);
-                if (result.success) {
-                    setCompleted(prev => new Set(prev).add(lessonId));
-                }
-            }
-        });
-    };
-
-    // Calculate progress
-    const progressPercent = lessons.length > 0
-        ? Math.round((completed.size / lessons.length) * 100)
-        : 0;
 
     return (
         <div className="flex flex-col gap-8">
@@ -105,7 +72,7 @@ export default function CourseViewer({ course, lessons, completedLessons = [], i
                             }`}>
                             {course.level === 'beginner' ? 'Başlangıç' : course.level === 'intermediate' ? 'Orta' : 'İleri'}
                         </span>
-                        <span className="text-accent-blue text-sm font-medium">{course.category || 'Finans'}</span>
+                        <span className="text-accent-blue text-sm font-medium">Finans</span>
                     </div>
 
                     <h1 className="text-3xl md:text-4xl font-black text-text-primary mb-4 leading-tight">
@@ -117,101 +84,40 @@ export default function CourseViewer({ course, lessons, completedLessons = [], i
                     </p>
                 </div>
 
-                {/* Progress Bar */}
-                {isLoggedIn && lessons.length > 0 && (
-                    <div className="bg-bg-surface border border-border-subtle rounded-xl p-4">
-                        <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium text-text-secondary">İlerleme Durumu</span>
-                            <span className="text-sm font-bold text-accent-green">{progressPercent}%</span>
-                        </div>
-                        <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                            <div
-                                className="h-full bg-gradient-to-r from-accent-green to-emerald-400 rounded-full transition-all duration-500"
-                                style={{ width: `${progressPercent}%` }}
-                            />
-                        </div>
-                        <div className="mt-2 text-xs text-text-muted">
-                            {completed.size} / {lessons.length} ders tamamlandı
-                        </div>
-                    </div>
-                )}
-
                 {/* Curriculum List */}
                 <div className="border-t border-border-subtle pt-8">
                     <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                         <PlayCircleIcon className="w-6 h-6 text-accent-green" />
                         Ders İçeriği
                     </h3>
-                    <div className="bg-bg-surface border border-border-subtle rounded-xl p-4 space-y-2">
+                    <div className="bg-bg-surface border border-border-subtle rounded-xl p-4 space-y-3">
                         {lessons && lessons.length > 0 ? (
-                            lessons.map((lesson, i) => {
-                                const isCompleted = completed.has(lesson.id);
-                                const isActive = activeLesson?.id === lesson.id;
-
-                                return (
-                                    <div
-                                        key={lesson.id}
-                                        className={`p-3 rounded-lg flex justify-between items-center transition-all border ${isActive
+                            lessons.map((lesson, i) => (
+                                <div
+                                    key={lesson.id}
+                                    onClick={() => setActiveLesson(lesson)}
+                                    className={`p-3 rounded-lg flex justify-between items-center cursor-pointer transition-all border ${activeLesson?.id === lesson.id
                                             ? 'bg-accent-green/10 border-accent-green/20'
-                                            : isCompleted
-                                                ? 'bg-emerald-500/5 border-emerald-500/10'
-                                                : 'bg-bg-elevated border-transparent hover:bg-bg-surface-hover'
-                                            }`}
-                                    >
-                                        <div
-                                            className="flex items-center gap-3 flex-1 cursor-pointer"
-                                            onClick={() => setActiveLesson(lesson)}
-                                        >
-                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${isCompleted
+                                            : 'bg-bg-elevated border-transparent hover:bg-bg-surface-hover'
+                                        }`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${activeLesson?.id === lesson.id
                                                 ? 'bg-accent-green text-white'
-                                                : isActive
-                                                    ? 'bg-accent-green text-white'
-                                                    : 'bg-white/5 text-text-muted'
-                                                }`}>
-                                                {isCompleted ? (
-                                                    <CheckCircleSolid className="w-5 h-5" />
-                                                ) : isActive ? (
-                                                    <PlayCircleIcon className="w-5 h-5" />
-                                                ) : (
-                                                    i + 1
-                                                )}
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className={`font-medium text-sm transition-colors ${isCompleted
-                                                    ? 'text-accent-green'
-                                                    : isActive
-                                                        ? 'text-accent-green'
-                                                        : 'text-text-secondary'
-                                                    }`}>
-                                                    {lesson.title}
-                                                </span>
-                                                {lesson.duration && (
-                                                    <span className="text-xs text-text-muted">{lesson.duration}</span>
-                                                )}
-                                            </div>
+                                                : 'bg-white/5 text-text-muted'
+                                            }`}>
+                                            {activeLesson?.id === lesson.id ? <PlayCircleIcon className="w-5 h-5" /> : i + 1}
                                         </div>
-
-                                        {/* Complete Button */}
-                                        {isLoggedIn && (
-                                            <button
-                                                onClick={() => toggleComplete(lesson.id)}
-                                                disabled={isPending}
-                                                className={`p-2 rounded-lg transition-all ${isCompleted
-                                                    ? 'text-accent-green hover:bg-accent-green/10'
-                                                    : 'text-text-muted hover:text-accent-green hover:bg-accent-green/10'
-                                                    } disabled:opacity-50`}
-                                                title={isCompleted ? 'Tamamlandı olarak işaretle' : 'Tamamla'}
-                                            >
-                                                {isCompleted ? (
-                                                    <CheckCircleSolid className="w-5 h-5" />
-                                                ) : (
-                                                    <CheckCircleIcon className="w-5 h-5" />
-                                                )}
-                                            </button>
-                                        )}
+                                        <div className="flex flex-col">
+                                            <span className={`font-medium text-sm transition-colors ${activeLesson?.id === lesson.id ? 'text-accent-green' : 'text-text-secondary'
+                                                }`}>
+                                                {lesson.title}
+                                            </span>
+                                        </div>
                                     </div>
-                                );
-                            })
+                                    <span className="text-xs text-text-muted">{lesson.duration || 'Video'}</span>
+                                </div>
+                            ))
                         ) : (
                             <div className="text-center py-4 text-text-muted text-sm">
                                 Bu kurs için henüz ders eklenmemiş.

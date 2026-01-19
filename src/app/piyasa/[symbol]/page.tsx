@@ -4,7 +4,6 @@ import AssetHeader from "@/components/asset-detail/AssetHeader";
 import AssetMainSection from "@/components/asset-detail/AssetMainSection";
 import WarRoom from "@/components/asset-detail/WarRoom";
 import KeyStatistics from "@/components/asset-detail/KeyStatistics";
-import ActionPanel from "@/components/asset-detail/ActionPanel";
 import { Metadata } from "next";
 import { createClient } from "@/utils/supabase/server";
 import { getProfessionalNews } from "@/services/newsApiService";
@@ -101,11 +100,8 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
                         <AssetMainSection symbol={symbol} news={newsData} />
                     </div>
 
-                    {/* RIGHT COLUMN (Trading & Stats & Community) - 1/3 */}
+                    {/* RIGHT COLUMN (Stats & Community) - 1/3 */}
                     <div className="lg:col-span-1 flex flex-col gap-6">
-                        {/* Trading Panel */}
-                        <ActionPanel symbol={symbol} />
-
                         {/* Key Statistics Table */}
                         <KeyStatistics symbol={symbol} />
 

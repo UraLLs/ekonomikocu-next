@@ -8,7 +8,6 @@ import { createClient } from "@/utils/supabase/server";
 import { Suspense } from "react";
 import NewsSectionSkeleton from "@/components/features/skeletons/NewsSectionSkeleton";
 import DashboardLoader from "@/components/features/DashboardLoader";
-import SocialFeed from "@/components/social/SocialFeed";
 import { getCurrencyRates } from "@/services/marketService";
 
 export const revalidate = 60;
@@ -39,10 +38,29 @@ export default async function Home() {
             {/* KAP Haberleri */}
             <KapStories />
 
-            {/* SOSYAL AKIS - Topluluk Paylasimlari */}
-            <Suspense fallback={<div className="h-48 bg-bg-surface animate-pulse rounded-2xl border border-border-subtle" />}>
-              <SocialFeed />
-            </Suspense>
+            {/* TOPLULUK TANITIM */}
+            <section className="bg-gradient-to-br from-accent-purple/10 to-accent-blue/10 border border-white/10 rounded-2xl p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-1">
+                    <svg className="w-5 h-5 text-accent-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Yatırımcı Topluluğu
+                  </h2>
+                  <p className="text-sm text-gray-400">Piyasalar hakkında konuş, tartış, öğren.</p>
+                </div>
+                <a
+                  href="/topluluk"
+                  className="px-4 py-2 bg-accent-purple hover:bg-accent-purple/80 text-white text-sm font-bold rounded-xl transition-colors flex items-center gap-2"
+                >
+                  Topluluğa Git
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </a>
+              </div>
+            </section>
 
             {/* Ekonomi Haberleri */}
             <Suspense fallback={<NewsSectionSkeleton />}>

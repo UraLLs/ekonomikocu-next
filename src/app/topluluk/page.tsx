@@ -28,7 +28,11 @@ export default async function ToplulukPage() {
         userProfile = data;
     }
 
-    const posts = await getPosts(50);
+    // Fetch chat and forum posts separately
+    const [chatPosts, forumPosts] = await Promise.all([
+        getPosts(50, 0, 'chat'),
+        getPosts(50, 0, 'forum')
+    ]);
 
     return (
         <main className="min-h-screen bg-bg-primary text-text-primary">
@@ -62,7 +66,8 @@ export default async function ToplulukPage() {
 
                 {/* Client Component for Interactive Parts */}
                 <ToplulukClient
-                    initialPosts={posts}
+                    chatPosts={chatPosts}
+                    forumPosts={forumPosts}
                     currentUser={user}
                     userProfile={userProfile}
                 />

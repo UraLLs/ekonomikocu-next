@@ -1,4 +1,5 @@
-// Post System Types
+export type PostType = 'chat' | 'forum';
+export type ForumCategory = 'borsa' | 'kripto' | 'doviz' | 'yatirim' | 'genel';
 
 export interface Post {
     id: string;
@@ -12,6 +13,8 @@ export interface Post {
     likes_count: number;
     comments_count: number;
     is_pinned: boolean;
+    post_type: PostType;
+    category?: ForumCategory | null;
     // Joined data
     profiles?: {
         id: string;
@@ -50,4 +53,6 @@ export interface CreatePostInput {
     symbol?: string;
     sentiment?: 'BULL' | 'BEAR' | 'NEUTRAL';
     image_url?: string;
+    post_type?: PostType;
+    category?: ForumCategory;
 }

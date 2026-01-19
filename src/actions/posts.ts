@@ -7,7 +7,7 @@ import { Post, CreatePostInput } from '@/types/post';
 // Post olustur
 export async function createPost(input: CreatePostInput) {
     const supabase = await createClient();
-    
+
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
         return { success: false, error: 'Giris yapmaniz gerekiyor' };
@@ -21,6 +21,8 @@ export async function createPost(input: CreatePostInput) {
             symbol: input.symbol || null,
             sentiment: input.sentiment || null,
             image_url: input.image_url || null,
+            post_type: input.post_type || 'chat',
+            category: input.category || null,
         })
         .select()
         .single();
@@ -35,16 +37,23 @@ export async function createPost(input: CreatePostInput) {
 }
 
 // Postlari getir
-export async function getPosts(limit = 20, offset = 0) {
+export async function getPosts(limit = 20, offset = 0, postType?: 'chat' | 'forum') {
     const supabase = await createClient();
-    
+
     const { data: { user } } = await supabase.auth.getUser();
 
-    const { data: posts, error } = await supabase
+    let query = supabase
         .from('social_posts')
         .select('*')
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1);
+
+    // Filter by post_type if specified
+    if (postType) {
+        query = query.eq('post_type', postType);
+    }
+
+    const { data: posts, error } = await query;
 
     if (error && Object.keys(error).length > 0) {
         console.error('Post getirme hatasi:', JSON.stringify(error, null, 2));
@@ -60,7 +69,7 @@ export async function getPosts(limit = 20, offset = 0) {
             .in('id', userIds);
 
         const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
-        
+
         const postsWithProfiles = posts.map(post => ({
             ...post,
             profiles: profileMap.get(post.user_id) || null
@@ -76,7 +85,7 @@ export async function getPosts(limit = 20, offset = 0) {
                 .in('post_id', postIds);
 
             const likedPostIds = new Set(likes?.map(l => l.post_id) || []);
-            
+
             return postsWithProfiles.map(post => ({
                 ...post,
                 is_liked: likedPostIds.has(post.id)
@@ -92,7 +101,7 @@ export async function getPosts(limit = 20, offset = 0) {
 // Tek post getir
 export async function getPost(postId: string) {
     const supabase = await createClient();
-    
+
     const { data: { user } } = await supabase.auth.getUser();
 
     const { data: post, error } = await supabase
@@ -131,7 +140,7 @@ export async function getPost(postId: string) {
 // Post begen/begeniyi kaldir
 export async function toggleLike(postId: string) {
     const supabase = await createClient();
-    
+
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
         return { success: false, error: 'Giris yapmaniz gerekiyor' };
@@ -155,7 +164,7 @@ export async function toggleLike(postId: string) {
         if (error) {
             return { success: false, error: error.message };
         }
-        
+
         revalidatePath('/');
         return { success: true, liked: false };
     } else {
@@ -170,7 +179,7 @@ export async function toggleLike(postId: string) {
         if (error) {
             return { success: false, error: error.message };
         }
-        
+
         revalidatePath('/');
         return { success: true, liked: true };
     }
@@ -179,7 +188,7 @@ export async function toggleLike(postId: string) {
 // Post sil
 export async function deletePost(postId: string) {
     const supabase = await createClient();
-    
+
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
         return { success: false, error: 'Giris yapmaniz gerekiyor' };

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Post } from '@/types/post';
+import { Post, ForumCategory as ForumCategoryType } from '@/types/post';
 import { User } from '@supabase/supabase-js';
 import CreatePostForm from '@/components/social/CreatePostForm';
 import ChatStyleFeed from '@/components/social/ChatStyleFeed';
@@ -9,28 +9,20 @@ import ForumTabs, { FORUM_CATEGORIES } from '@/components/social/ForumTabs';
 import Link from 'next/link';
 
 interface ToplulukClientProps {
-    initialPosts: Post[];
+    chatPosts: Post[];
+    forumPosts: Post[];
     currentUser: User | null;
     userProfile: { username?: string; avatar_url?: string } | null;
 }
 
-export default function ToplulukClient({ initialPosts, currentUser, userProfile }: ToplulukClientProps) {
-    const [activeCategory, setActiveCategory] = useState('genel');
+export default function ToplulukClient({ chatPosts, forumPosts, currentUser, userProfile }: ToplulukClientProps) {
+    const [activeCategory, setActiveCategory] = useState<ForumCategoryType>('genel');
     const [activeTab, setActiveTab] = useState<'chat' | 'forum'>('chat');
 
-    // Filter posts by category (if symbol matches category or general)
-    const filteredPosts = initialPosts.filter(post => {
-        if (activeCategory === 'genel') return true;
-        // Map categories to possible symbols
-        const categorySymbols: Record<string, string[]> = {
-            'borsa': ['THYAO', 'GARAN', 'AKBNK', 'SISE', 'KCHOL', 'BIST'],
-            'kripto': ['BTC', 'ETH', 'XRP', 'SOL', 'DOGE'],
-            'doviz': ['USD', 'EUR', 'GBP', 'TRY'],
-            'yatirim': [],
-        };
-        const symbols = categorySymbols[activeCategory] || [];
-        return symbols.some(s => post.symbol?.toUpperCase().includes(s)) ||
-            post.content?.toLowerCase().includes(activeCategory);
+    // Filter forum posts by category
+    const filteredForumPosts = forumPosts.filter(post => {
+        if (activeCategory === 'genel') return !post.category || post.category === 'genel';
+        return post.category === activeCategory;
     });
 
     return (
@@ -48,6 +40,7 @@ export default function ToplulukClient({ initialPosts, currentUser, userProfile 
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
                     Canlı Sohbet
+                    <span className="px-1.5 py-0.5 bg-white/20 text-white text-[10px] rounded-full">{chatPosts.length}</span>
                 </button>
                 <button
                     onClick={() => setActiveTab('forum')}
@@ -60,6 +53,7 @@ export default function ToplulukClient({ initialPosts, currentUser, userProfile 
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                     Tartışma Alanları
+                    <span className="px-1.5 py-0.5 bg-white/20 text-white text-[10px] rounded-full">{forumPosts.length}</span>
                 </button>
             </div>
 
@@ -71,14 +65,14 @@ export default function ToplulukClient({ initialPosts, currentUser, userProfile 
                         <div className="flex items-center gap-2">
                             <div className="w-2 h-2 bg-accent-green rounded-full animate-pulse"></div>
                             <span className="text-sm font-medium text-white">Canlı</span>
-                            <span className="text-xs text-gray-400">• {initialPosts.length} mesaj</span>
+                            <span className="text-xs text-gray-400">• {chatPosts.length} mesaj</span>
                         </div>
                         <span className="text-xs text-gray-500">Son güncelleme: şimdi</span>
                     </div>
 
                     {/* Chat Messages */}
                     <div className="p-4">
-                        <ChatStyleFeed posts={initialPosts} currentUserId={currentUser?.id} />
+                        <ChatStyleFeed posts={chatPosts} currentUserId={currentUser?.id} />
                     </div>
 
                     {/* Message Input */}
@@ -87,6 +81,7 @@ export default function ToplulukClient({ initialPosts, currentUser, userProfile 
                             <CreatePostForm
                                 userAvatar={userProfile?.avatar_url}
                                 username={userProfile?.username || currentUser.email?.split('@')[0]}
+                                postType="chat"
                             />
                         ) : (
                             <div className="text-center py-4">
@@ -109,7 +104,7 @@ export default function ToplulukClient({ initialPosts, currentUser, userProfile 
                     {/* Category Tabs */}
                     <ForumTabs
                         activeCategory={activeCategory}
-                        onCategoryChange={setActiveCategory}
+                        onCategoryChange={(id) => setActiveCategory(id as ForumCategoryType)}
                     />
 
                     {/* Category Description */}
@@ -131,14 +126,14 @@ export default function ToplulukClient({ initialPosts, currentUser, userProfile 
 
                     {/* Forum Posts */}
                     <div className="space-y-3">
-                        {filteredPosts.length === 0 ? (
+                        {filteredForumPosts.length === 0 ? (
                             <div className="text-center py-12 bg-white/5 border border-white/10 rounded-xl">
                                 <div className="text-4xl mb-3">📭</div>
                                 <h3 className="text-white font-bold mb-1">Bu kategoride henüz tartışma yok</h3>
                                 <p className="text-gray-400 text-sm">İlk tartışmayı başlat!</p>
                             </div>
                         ) : (
-                            filteredPosts.map((post) => (
+                            filteredForumPosts.map((post) => (
                                 <div
                                     key={post.id}
                                     className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-4 hover:border-white/20 transition-all"
@@ -156,6 +151,11 @@ export default function ToplulukClient({ initialPosts, currentUser, userProfile 
                                                 {post.symbol && (
                                                     <span className="px-2 py-0.5 bg-accent-blue/20 text-accent-blue text-xs font-bold rounded">
                                                         ${post.symbol}
+                                                    </span>
+                                                )}
+                                                {post.category && (
+                                                    <span className="px-2 py-0.5 bg-white/10 text-gray-400 text-xs rounded">
+                                                        {post.category}
                                                     </span>
                                                 )}
                                             </div>
@@ -179,11 +179,13 @@ export default function ToplulukClient({ initialPosts, currentUser, userProfile 
                     {currentUser && (
                         <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-4">
                             <h4 className="text-white font-bold mb-3 flex items-center gap-2">
-                                <span>✍️</span> Yeni Tartışma Başlat
+                                <span>✍️</span> Yeni Tartışma Başlat ({FORUM_CATEGORIES.find(c => c.id === activeCategory)?.name})
                             </h4>
                             <CreatePostForm
                                 userAvatar={userProfile?.avatar_url}
                                 username={userProfile?.username || currentUser.email?.split('@')[0]}
+                                postType="forum"
+                                category={activeCategory}
                             />
                         </div>
                     )}

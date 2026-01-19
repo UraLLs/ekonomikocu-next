@@ -3,13 +3,16 @@
 import { useState } from 'react';
 import { createPost } from '@/actions/posts';
 import { useRouter } from 'next/navigation';
+import { PostType, ForumCategory } from '@/types/post';
 
 interface CreatePostFormProps {
     userAvatar?: string | null;
     username?: string;
+    postType?: PostType;
+    category?: ForumCategory;
 }
 
-export default function CreatePostForm({ userAvatar, username }: CreatePostFormProps) {
+export default function CreatePostForm({ userAvatar, username, postType = 'chat', category }: CreatePostFormProps) {
     const [content, setContent] = useState('');
     const [symbol, setSymbol] = useState('');
     const [sentiment, setSentiment] = useState<'BULL' | 'BEAR' | 'NEUTRAL' | ''>('');
@@ -19,13 +22,15 @@ export default function CreatePostForm({ userAvatar, username }: CreatePostFormP
 
     const handleSubmit = async () => {
         if (!content.trim()) return;
-        
+
         setLoading(true);
         try {
             const result = await createPost({
                 content: content.trim(),
                 symbol: symbol.trim().toUpperCase() || undefined,
                 sentiment: sentiment || undefined,
+                post_type: postType,
+                category: category,
             });
 
             if (result.success) {
@@ -56,9 +61,9 @@ export default function CreatePostForm({ userAvatar, username }: CreatePostFormP
                 {/* Avatar */}
                 <div className="shrink-0">
                     {userAvatar ? (
-                        <img 
-                            src={userAvatar} 
-                            alt={username} 
+                        <img
+                            src={userAvatar}
+                            alt={username}
                             className="w-10 h-10 rounded-full border border-white/10"
                         />
                     ) : (
@@ -101,22 +106,20 @@ export default function CreatePostForm({ userAvatar, username }: CreatePostFormP
                                     <button
                                         type="button"
                                         onClick={() => setSentiment(sentiment === 'BULL' ? '' : 'BULL')}
-                                        className={`px-2 py-1 rounded-lg text-xs font-medium transition-all ${
-                                            sentiment === 'BULL'
+                                        className={`px-2 py-1 rounded-lg text-xs font-medium transition-all ${sentiment === 'BULL'
                                                 ? 'bg-accent-green text-white'
                                                 : 'bg-white/5 text-gray-400 hover:bg-accent-green/20 hover:text-accent-green'
-                                        }`}
+                                            }`}
                                     >
                                         YUKSELIS
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setSentiment(sentiment === 'BEAR' ? '' : 'BEAR')}
-                                        className={`px-2 py-1 rounded-lg text-xs font-medium transition-all ${
-                                            sentiment === 'BEAR'
+                                        className={`px-2 py-1 rounded-lg text-xs font-medium transition-all ${sentiment === 'BEAR'
                                                 ? 'bg-accent-red text-white'
                                                 : 'bg-white/5 text-gray-400 hover:bg-accent-red/20 hover:text-accent-red'
-                                        }`}
+                                            }`}
                                     >
                                         DUSUS
                                     </button>

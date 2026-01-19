@@ -15,10 +15,10 @@ export default async function ProfilePage() {
         redirect('/giris'); // Redirect to login if not authenticated
     }
 
-    // 1. Fetch Profile (Balance)
+    // 1. Fetch Profile (Balance + Social Stats)
     const { data: profile, error } = await supabase
         .from('profiles')
-        .select('username, balance')
+        .select('username, balance, avatar_url, bio, level, xp, followers_count, following_count')
         .eq('id', user.id)
         .single();
 
@@ -98,14 +98,46 @@ export default async function ProfilePage() {
             <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-8">
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold text-text-primary">Portföyüm</h1>
-                        <p className="text-text-secondary">Hoş geldin, {profile.username || user.email}</p>
+                    <div className="flex items-center gap-4">
+                        {/* Avatar */}
+                        {profile.avatar_url ? (
+                            <img 
+                                src={profile.avatar_url} 
+                                alt={profile.username} 
+                                className="w-16 h-16 rounded-full border-2 border-accent-purple/50 object-cover"
+                            />
+                        ) : (
+                            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center text-white font-bold text-2xl border-2 border-white/20">
+                                {(profile.username || 'U')[0].toUpperCase()}
+                            </div>
+                        )}
+                        <div>
+                            <h1 className="text-3xl font-bold text-text-primary">Portfoyum</h1>
+                            <div className="flex items-center gap-3 text-text-secondary">
+                                <span>Hos geldin, @{profile.username || user.email}</span>
+                                <span className="px-2 py-0.5 bg-accent-purple/20 text-accent-purple text-xs font-bold rounded">
+                                    Lv{profile.level || 1}
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <a href="/profil/duzenle" className="flex items-center gap-2 px-4 py-2 bg-bg-elevated hover:bg-bg-surface-hover border border-border-subtle rounded-lg text-sm font-medium transition-colors">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
-                        Profili Düzenle
-                    </a>
+                    <div className="flex items-center gap-4">
+                        {/* Social Stats */}
+                        <div className="flex items-center gap-4 text-sm">
+                            <a href={`/profil/${profile.username}`} className="text-center hover:bg-white/5 px-3 py-2 rounded-lg transition-colors">
+                                <div className="text-lg font-bold text-text-primary">{profile.followers_count || 0}</div>
+                                <div className="text-text-muted text-xs">Takipci</div>
+                            </a>
+                            <a href={`/profil/${profile.username}`} className="text-center hover:bg-white/5 px-3 py-2 rounded-lg transition-colors">
+                                <div className="text-lg font-bold text-text-primary">{profile.following_count || 0}</div>
+                                <div className="text-text-muted text-xs">Takip</div>
+                            </a>
+                        </div>
+                        <a href="/profil/duzenle" className="flex items-center gap-2 px-4 py-2 bg-bg-elevated hover:bg-bg-surface-hover border border-border-subtle rounded-lg text-sm font-medium transition-colors">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                            Duzenle
+                        </a>
+                    </div>
                 </div>
 
                 {/* Summary Cards */}

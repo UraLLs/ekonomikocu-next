@@ -52,11 +52,10 @@ export default async function Header() {
                         Canlı
                         <span className="bg-accent-red text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">3</span>
                     </Link>
-                    <a href="https://forum.ekonomikocu.com" target="_blank" rel="noreferrer" className="px-3 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover rounded-md transition-colors flex items-center gap-1.5">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
-                        Forum
-                        <span className="w-1.5 h-1.5 bg-accent-blue rounded-full"></span>
-                    </a>
+                    <Link href="/topluluk" className="px-3 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover rounded-md transition-colors flex items-center gap-1.5">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        Topluluk
+                    </Link>
                 </nav>
 
                 {/* ACTIONS */}

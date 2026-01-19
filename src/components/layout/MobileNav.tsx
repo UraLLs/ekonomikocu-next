@@ -54,10 +54,12 @@ export default function MobileNav() {
                             <MobileLink href="/canli" onClick={() => setIsOpen(false)} icon={<LiveIcon />}>
                                 Canlı
                             </MobileLink>
-                            <a href="https://forum.ekonomikocu.com" target="_blank" rel="noreferrer" onClick={() => setIsOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover rounded-lg transition-colors border border-transparent hover:border-border-subtle">
-                                <span className="text-accent-green"><ChatIcon /></span>
-                                Forum
-                            </a>
+                            <MobileLink href="/topluluk" onClick={() => setIsOpen(false)} icon={<UsersIcon />}>
+                                Topluluk
+                            </MobileLink>
+                            <MobileLink href="/liderlik" onClick={() => setIsOpen(false)} icon={<TrophyIcon />}>
+                                Liderlik
+                            </MobileLink>
                         </nav>
 
                         <div className="mt-auto pt-6 border-t border-border-subtle">
@@ -92,3 +94,5 @@ const UsersIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColo
 const AcademicIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>;
 const LiveIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><polygon points="10 8 16 12 10 16 10 8" /></svg>;
 const ChatIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>;
+const TrophyIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /><path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg>;
+

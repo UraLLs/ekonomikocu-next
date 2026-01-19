@@ -16,7 +16,7 @@ export default async function Ticker() {
     const allItems = [...items, ...items];
 
     return (
-        <div className="bg-bg-secondary border-b border-border-subtle overflow-hidden py-2 h-[42px]">
+        <div className="hidden md:block bg-bg-secondary border-b border-border-subtle overflow-hidden py-2 h-[42px]">
             <div className="flex w-max animate-ticker hover:[animation-play-state:paused] gap-8 px-4">
                 {allItems.map((item, i) => (
                     <Link

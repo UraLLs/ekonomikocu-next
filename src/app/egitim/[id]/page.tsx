@@ -1,17 +1,19 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { COURSES } from "@/data/education";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import EducationSidebar from '@/components/education/EducationSidebar';
 import CourseViewer from '@/components/education/CourseViewer';
-import { ClockIcon, UserIcon, ArrowLeftIcon, PlayCircleIcon } from "@heroicons/react/24/outline";
+import { ClockIcon, UserIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function CourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
 
     const supabase = await createClient();
+
+    // Check if user is logged in
+    const { data: { user } } = await supabase.auth.getUser();
 
     // Fetch Course & Lessons
     const { data: course } = await supabase
@@ -30,30 +32,16 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
         notFound();
     }
 
-    // Fetch Sidebar Data (Comments)
-    const { data: comments } = await supabase
-        .from('comments')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(10);
+    // Fetch user's progress for this course
+    let completedLessons: string[] = [];
+    if (user) {
+        const { data: progress } = await supabase
+            .from('lesson_progress')
+            .select('lesson_id')
+            .eq('user_id', user.id)
+            .eq('course_id', id);
 
-    let feedData: any[] = [];
-    if (comments && comments.length > 0) {
-        const userIds = Array.from(new Set(comments.map(c => c.user_id)));
-        const { data: profiles } = await supabase
-            .from('profiles')
-            .select('id, username, avatar_url')
-            .in('id', userIds);
-
-        const profileMap = (profiles || []).reduce<Record<string, any>>((acc, profile) => {
-            acc[profile.id] = profile;
-            return acc;
-        }, {});
-
-        feedData = comments.map(c => ({
-            ...c,
-            profiles: profileMap[c.user_id]
-        }));
+        completedLessons = progress?.map(p => p.lesson_id) || [];
     }
 
     return (
@@ -71,7 +59,12 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
                             <span>Akademi'ye Dön</span>
                         </Link>
 
-                        <CourseViewer course={course} lessons={lessons || []} />
+                        <CourseViewer
+                            course={course}
+                            lessons={lessons || []}
+                            completedLessons={completedLessons}
+                            isLoggedIn={!!user}
+                        />
 
                         {/* Instructor & Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-bg-surface border border-border-subtle rounded-2xl p-6 mt-8">

@@ -72,8 +72,8 @@ export default async function MarketsPage() {
                             </h2>
                             <Link href="/piyasa/bist" className="text-xs font-bold text-accent-blue uppercase tracking-wider hover:underline">Tümü</Link>
                         </div>
-                        <div className="p-2">
-                            <table className="w-full">
+                        <div className="p-2 overflow-x-auto">
+                            <table className="w-full min-w-[300px]">
                                 <thead className="text-[10px] uppercase font-bold text-gray-500 bg-white/[0.02]">
                                     <tr>
                                         <th className="py-2 px-3 text-left rounded-l-md">Hisse</th>
@@ -129,8 +129,8 @@ export default async function MarketsPage() {
                                 </h2>
                                 <Link href="/piyasa/kripto" className="text-xs font-bold text-accent-orange uppercase tracking-wider hover:underline">Tümü</Link>
                             </div>
-                            <div className="p-2">
-                                <table className="w-full">
+                            <div className="p-2 overflow-x-auto">
+                                <table className="w-full min-w-[300px]">
                                     <thead className="text-[10px] uppercase font-bold text-gray-500 bg-white/[0.02]">
                                         <tr>
                                             <th className="py-2 px-3 text-left rounded-l-md">Coin</th>
